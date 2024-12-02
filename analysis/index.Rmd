@@ -13,3 +13,9 @@ editor_options:
  [Model Specification](algorithm_details.html)
  
  [Real data results](realdataresults.html)
+
+ [Simulation results](simulation.html)
+
+
+
+

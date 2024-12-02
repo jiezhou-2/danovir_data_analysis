@@ -1,5 +1,5 @@
 ---
-title: "Simulatioon Studies"
+title: "Simulatioon Studies of decomposition model: 5 antigens with 6 antibodies"
 author: "Jie Zhou"
 date: "`r Sys.Date()`"
 output: 
@@ -33,22 +33,18 @@ set.seed(10)
 ```
 
 
-
-
-
-
-
-
-
-### Mode 1 : third order model + independent/homoscedastic error 
-
+Model:
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{jkl}+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})$$
-#### independent repeated measurements 
+
+
+
+
+
+## 1. data are independent repeated measurements 
 
 ```{r,message=FALSE,echo=FALSE}
 for (esd in c(0.2,0.6,1)) {
-  print(esd)
 sd=c(0.1,0.1,0.5,1,1,2,0.5,0.5,0.5,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
@@ -65,28 +61,28 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Denoised model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
 }
 ```
 
 
 
-#### random intercept 
+## 2. data are from full model with random intercepts 
 
 ```{r,message=FALSE,echo=FALSE}
 for (esd in c(0.2,0.6,1)) {
-sd=c(0.1,0.1,0.5,1,1,2,0.5,0.5,0.5,esd)
+sd=c(0.1,0.1,0.5,1,1,2,0.2,0.2,0.2,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
 simResults=geneData(N=40,Nag=5,Nab=6,sd=sd,type=2)
@@ -102,28 +98,28 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercetp: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Denosied model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
 }
 ```
 
 
 
-#### random intercept and antigen effects
+## 3. data are from full model with  random intercept and antigen effects
 
 ```{r,message=FALSE,echo=FALSE}
 for (esd in c(0.2,0.6,1)) {
-sd=c(0.1,0.1,0.5,1,1,2,0.5,0.5,0.5,esd)
+sd=c(0.1,0.1,0.5,1,1,2,0.2,0.2,0.2,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
 simResults=geneData(N=40,Nag=5,Nab=6,sd=sd,type=3)
@@ -139,24 +135,24 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercetp: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Denoised model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
 }
 ```
 
 
 
-#### Forest plot
+## Forest plot
 
 
 ```{r,echo=FALSE,eval=FALSE}
