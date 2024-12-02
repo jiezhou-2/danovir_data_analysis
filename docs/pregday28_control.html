@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jie Zhou" />
+
+<meta name="date" content="2024-11-12" />
+
+<title>Replicate the Original Results using Linear Regression and Mixed-effects Model</title>
+
+<script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">danovir_data_analysis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Replicate the Original Results using Linear
+Regression and Mixed-effects Model</h1>
+<h4 class="author">Jie Zhou</h4>
+<h4 class="date">2024-11-12</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-11-12
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>danovir_data_analysis/</code>
+<span class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20241027code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20241027)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20241027code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20241027)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstronga7c1591">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong> a7c1591
+</a>
+</p>
+</div>
+<div id="strongRepositoryversionstronga7c1591"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version a7c1591.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  analysis/algorithm_details.Rmd
+    Untracked:  analysis/doseday0.Rmd
+    Untracked:  analysis/doseday28_control.Rmd
+    Untracked:  analysis/pregday0.Rmd
+    Untracked:  analysis/pregday28_control.Rmd
+    Untracked:  analysis/realdataresults.Rmd
+    Untracked:  code/contrast.R
+    Untracked:  code/data_cleaning_no_buffer.R
+
+Unstaged changes:
+    Modified:   analysis/index.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>## exclude non Lumbaa assay
+device=do.call(rbind,strsplit(combined_experiments$detect_method,split=&quot;_&quot;))
+combined_experiments=cbind(combined_experiments,assay=device[,1])
+ index=which(device[,1]==&quot;LumBAA&quot; | device[,1]==&quot;NAI&quot; | device[,1]==&quot;MN&quot; | device[,1]==&quot;HAI&quot; | device[,1]==&quot;ELISA&quot;
+               | device[,1]==&quot;ADCC&quot; | device[,1]==&quot;ADCP&quot; | (device[,1]==&quot;ADCD&quot; &amp; device[,3]==&quot;dil3200&quot; &amp; device[,2]==&quot;set1&quot; ))
+
+combined_experiments=combined_experiments[index,]
+index=which(combined_experiments$detect_method==&quot;ADCD_set1_dil3200&quot;)
+combined_experiments$detect_method[index]=&quot;ADCD&quot;
+
+
+
+## exclude non ca data
+ index=grep(&quot;CA&quot;,combined_experiments$analyte_reported)
+ combined_experiments=combined_experiments[index,]
+ ## exclude HA_dtm
+ index=which(combined_experiments$analyte_type==&quot;HA_dTM&quot;)
+ combined_experiments=combined_experiments[-index,]
+## create features
+temp = paste(combined_experiments$assay, combined_experiments$analyte_reported, sep=&quot;_&quot;)
+temp=ifelse(temp==&quot;NAI_NAI_CA07&quot;,&quot;NAI_CA07&quot;, ifelse(temp==&quot;MN_MN_CA07&quot;,&quot;MN_CA07&quot;,ifelse(temp==&quot;HAI_HAI_CA07&quot;,&quot;HAI_CA07&quot;,
+  ifelse(temp==&quot;ADCC_ADCC_CA07&quot;,&quot;ADCC_CA07&quot;,ifelse(temp==&quot;ADCP_ADCP_CA07&quot;,&quot;ADCP_CA07&quot;,
+                                                   ifelse(temp==&quot;ADCD_ADCD_CA07_HA&quot;,&quot;ADCD_CA07_HA&quot;,ifelse(temp==&quot;ADCD_ADCD_CA07_HA_FL&quot;,&quot;ADCD_CA07_HA_FL&quot;,ifelse(temp==&quot;ADCD_ADCD_CA07_HA_stalk&quot;,&quot;ADCD_CA07_HA_stalk&quot;,ifelse(temp==&quot;ADCD_ADCD_CA07_NA&quot;,&quot;ADCD_CA07_NA&quot;,temp)))))))))
+combined_experiments$temp=temp
+## for each assay, assign a shape number for plotting in the following. 
+assay=unique(combined_experiments$assay)
+shapes=c(15,17,18)
+names(shapes)=c(&quot;HASK&quot;,        &quot;NA&quot;,         &quot;HAFL&quot;)</code></pre>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<p><span class="math display">\[infant_{ijkl}=\mu + \alpha_j + \beta_k +
+\lambda_l+ \gamma_{1jk}+\gamma_{2jl}+\gamma_{3kl}+\gamma_{4jkl}+
+u_i+v_{1ij}+v_{2ik}+v_{3il}+gender_i+e_{ijkl}\]</span></p>
+<p>in which</p>
+<p><span class="math inline">\(\mu\)</span> the overall mean value,</p>
+<p><span class="math inline">\(\tau_i\)</span> the individual
+effect,</p>
+<p><span class="math inline">\(\alpha_j\)</span> the antigen effect,</p>
+<p><span class="math inline">\(\beta_k\)</span> the analyte effect,</p>
+<p><span class="math inline">\(\lambda_l\)</span> the maternal
+immunization effect,</p>
+<p><span class="math inline">\(v_{1ij}\)</span> the interaction effect
+between individual and antigen,</p>
+<p><span class="math inline">\(v_{2ik}\)</span> the interaction effect
+between individual and analyte,</p>
+<p><span class="math inline">\(v_{3il}\)</span> the interaction effect
+between individual and maternal immunization,</p>
+<p><span class="math inline">\(\gamma_{1jk}\)</span> the interaction
+effect between antigen and analyte.</p>
+<p><span class="math inline">\(\gamma_{2jl}\)</span> the interaction
+effect between antigen and maternal immunization,</p>
+<p><span class="math inline">\(\gamma_{3kl}\)</span> the interaction
+effect between analyte and maternal immunization,</p>
+<p><span class="math inline">\(\gamma_{4jkl}\)</span> the interaction
+effect between antigen and analyte and maternal immunization.</p>
+<p><span class="math inline">\(e_{ijlk}\)</span> the error term</p>
+<p>We assume that</p>
+<p><span class="math inline">\(\tau_i\sim N(0,
+\sigma_{\tau_i}^2)\)</span>,</p>
+<p><span class="math inline">\(v_{1ij}\sim
+N(0,\sigma_{j}^2)\)</span>,</p>
+<p><span class="math inline">\(v_{2ik}\sim
+N(0,\sigma_{k}^2)\)</span>,</p>
+<p><span class="math inline">\(v_{3il}\sim
+N(0,\sigma_{l}^2)\)</span>,</p>
+<p><span class="math inline">\(e_{ijkl} \sim N(0, \sigma_e)\)</span></p>
+<p>the following questions need to be addressed:</p>
+<p><span class="math display">\[H_0: var(u_i)=0 \leftrightarrow H_1:
+var(u_i)&gt;0\]</span></p>
+<p><span class="math display">\[H_0: var(v_{1ij})=0 \leftrightarrow H_1:
+var(v_{1ij})&gt;0\]</span></p>
+<p><span class="math display">\[H_0: var(v_{2ik})=0 \leftrightarrow H_1:
+var(v_{2ik})&gt;0\]</span></p>
+<p><span class="math display">\[H_0: \alpha_1=\cdots=\alpha_5
+\leftrightarrow H_1: \exists \  i,j, s.t,  \alpha_i\neq \alpha_j
+\]</span></p>
+<p><span class="math display">\[H_0: \beta_1=\cdots=\beta_{10}
+\leftrightarrow H_1: \exists \  i,j, s.t.,  \beta_i\neq \beta_j
+\]</span></p>
+<p><span class="math display">\[H_0:
+\forall  i_1,j_1,i_2,j_2,   \gamma_{1i_1j_1}= \gamma_{1i_2j_2}
+\leftrightarrow H_1: \exists \  i_1,j_1,i_2,j_2,
+s.t.,  \gamma_{1i_1j_1}\neq \gamma_{1i_2j_2} \]</span></p>
+<p><span class="math display">\[H_0:
+\forall  i_1,j_1,i_2,j_2,   \gamma_{2i_1j_1}= \gamma_{2i_2j_2}
+\leftrightarrow H_1: \exists \  i_1,j_1,i_2,j_2,
+s.t.,  \gamma_{2i_1j_1}\neq \gamma_{2i_2j_2} \]</span></p>
+<p><span class="math display">\[H_0:
+\forall  i_1,j_1,i_2,j_2,   \gamma_{3i_1j_1}= \gamma_{3i_2j_2}
+\leftrightarrow H_1: \exists \  i_1,j_1,i_2,j_2,
+s.t.,  \gamma_{3i_1j_1}\neq \gamma_{3i_2j_2} \]</span></p>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="model-1-third-order-model-independent-error"
+class="section level3">
+<h3>Model 1 : third order model + independent error</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{jkl}+
+e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})\]</span></p>
+<pre><code>                                            Value Std.Error t-value p-value
+(Intercept)                                 9.917     0.215  46.082   0.000
+armP15                                     -0.611     0.270  -2.260   0.024
+antigenHAFL                                 3.349     0.262  12.794   0.000
+antigenHASK                                 3.614     0.265  13.647   0.000
+detect_reagentFcaR                          1.129     0.391   2.888   0.004
+detect_reagentFcgR1A                       -1.283     0.391  -3.282   0.001
+detect_reagentFcgR2A131                    -0.674     0.391  -1.723   0.085
+detect_reagentFcgR2b                       -1.792     0.391  -4.582   0.000
+detect_reagentFcgR3A158                    -0.735     0.391  -1.880   0.060
+detect_reagentFcgR3b                       -2.287     0.391  -5.849   0.000
+detect_reagentIgA                          -0.376     0.391  -0.962   0.336
+detect_reagentIgA1                         -1.491     0.391  -3.814   0.000
+detect_reagentIgA2                         -2.251     0.391  -5.756   0.000
+detect_reagentIgG1                         -0.359     0.391  -0.918   0.359
+detect_reagentIgG2                         -0.616     0.391  -1.575   0.115
+detect_reagentIgG3                         -2.186     0.391  -5.589   0.000
+detect_reagentIgG4                         -2.599     0.391  -6.647   0.000
+detect_reagentIgM                           0.243     0.391   0.622   0.534
+assayELISA                                  2.726     0.193  14.098   0.000
+assayLumBAA                                -0.463     0.191  -2.421   0.016
+armP15:antigenHAFL                         -0.091     0.382  -0.237   0.812
+armP15:antigenHASK                         -0.420     0.389  -1.080   0.280
+armP15:detect_reagentFcaR                   0.512     0.544   0.943   0.346
+armP15:detect_reagentFcgR1A                 0.691     0.544   1.271   0.204
+armP15:detect_reagentFcgR2A131              0.113     0.544   0.208   0.835
+armP15:detect_reagentFcgR2b                 0.348     0.544   0.641   0.522
+armP15:detect_reagentFcgR3A158              0.028     0.544   0.052   0.958
+armP15:detect_reagentFcgR3b                 0.533     0.544   0.981   0.327
+armP15:detect_reagentIgA                    0.514     0.544   0.945   0.345
+armP15:detect_reagentIgA1                   0.537     0.544   0.988   0.323
+armP15:detect_reagentIgA2                   0.636     0.544   1.170   0.242
+armP15:detect_reagentIgG1                   0.180     0.544   0.332   0.740
+armP15:detect_reagentIgG2                   0.256     0.544   0.472   0.637
+armP15:detect_reagentIgG3                   0.658     0.544   1.210   0.226
+armP15:detect_reagentIgG4                   0.662     0.544   1.218   0.223
+armP15:detect_reagentIgM                    0.162     0.544   0.297   0.766
+antigenHAFL:detect_reagentFcaR             -1.779     0.529  -3.360   0.001
+antigenHASK:detect_reagentFcaR             -3.041     0.531  -5.728   0.000
+antigenHAFL:detect_reagentFcgR1A           -2.960     0.529  -5.590   0.000
+antigenHASK:detect_reagentFcgR1A           -2.181     0.531  -4.108   0.000
+antigenHAFL:detect_reagentFcgR2A131         2.547     0.529   4.810   0.000
+antigenHASK:detect_reagentFcgR2A131         2.579     0.531   4.857   0.000
+antigenHAFL:detect_reagentFcgR2b            2.663     0.529   5.031   0.000
+antigenHASK:detect_reagentFcgR2b            3.222     0.531   6.069   0.000
+antigenHAFL:detect_reagentFcgR3A158         2.710     0.529   5.119   0.000
+antigenHASK:detect_reagentFcgR3A158         3.096     0.531   5.832   0.000
+antigenHAFL:detect_reagentFcgR3b            1.642     0.529   3.102   0.002
+antigenHASK:detect_reagentFcgR3b            1.765     0.531   3.324   0.001
+antigenHAFL:detect_reagentIgA              -0.337     0.529  -0.637   0.524
+antigenHASK:detect_reagentIgA              -0.898     0.531  -1.692   0.091
+antigenHAFL:detect_reagentIgA1             -1.266     0.529  -2.391   0.017
+antigenHASK:detect_reagentIgA1             -2.534     0.531  -4.772   0.000
+antigenHAFL:detect_reagentIgA2              0.102     0.529   0.193   0.847
+antigenHASK:detect_reagentIgA2             -0.040     0.531  -0.076   0.940
+antigenHAFL:detect_reagentIgG1              0.308     0.529   0.582   0.561
+antigenHASK:detect_reagentIgG1              1.233     0.531   2.322   0.020
+antigenHAFL:detect_reagentIgG2             -4.397     0.529  -8.304   0.000
+antigenHASK:detect_reagentIgG2             -4.347     0.531  -8.186   0.000
+antigenHAFL:detect_reagentIgG3             -1.730     0.529  -3.267   0.001
+antigenHASK:detect_reagentIgG3             -1.649     0.531  -3.106   0.002
+antigenHAFL:detect_reagentIgG4             -2.974     0.529  -5.618   0.000
+antigenHASK:detect_reagentIgG4             -2.859     0.531  -5.385   0.000
+antigenHAFL:detect_reagentIgM              -3.533     0.529  -6.672   0.000
+antigenHASK:detect_reagentIgM              -4.102     0.531  -7.725   0.000
+armP15:antigenHAFL:detect_reagentFcaR       0.994     0.769   1.293   0.196
+armP15:antigenHASK:detect_reagentFcaR       2.073     0.772   2.685   0.007
+armP15:antigenHAFL:detect_reagentFcgR1A    -0.054     0.769  -0.070   0.944
+armP15:antigenHASK:detect_reagentFcgR1A     0.298     0.772   0.387   0.699
+armP15:antigenHAFL:detect_reagentFcgR2A131 -0.222     0.769  -0.289   0.773
+armP15:antigenHASK:detect_reagentFcgR2A131  0.176     0.772   0.228   0.820
+armP15:antigenHAFL:detect_reagentFcgR2b     0.007     0.769   0.009   0.992
+armP15:antigenHASK:detect_reagentFcgR2b     0.018     0.772   0.024   0.981
+armP15:antigenHAFL:detect_reagentFcgR3A158  0.129     0.769   0.168   0.866
+armP15:antigenHASK:detect_reagentFcgR3A158  0.376     0.772   0.486   0.627
+armP15:antigenHAFL:detect_reagentFcgR3b     0.056     0.769   0.073   0.942
+armP15:antigenHASK:detect_reagentFcgR3b    -0.029     0.772  -0.037   0.971
+armP15:antigenHAFL:detect_reagentIgA        0.509     0.769   0.663   0.508
+armP15:antigenHASK:detect_reagentIgA        0.839     0.772   1.087   0.277
+armP15:antigenHAFL:detect_reagentIgA1       0.805     0.769   1.047   0.295
+armP15:antigenHASK:detect_reagentIgA1       1.732     0.772   2.243   0.025
+armP15:antigenHAFL:detect_reagentIgA2       0.326     0.769   0.424   0.671
+armP15:antigenHASK:detect_reagentIgA2       1.198     0.772   1.552   0.121
+armP15:antigenHAFL:detect_reagentIgG1       0.155     0.769   0.202   0.840
+armP15:antigenHASK:detect_reagentIgG1       0.029     0.772   0.038   0.970
+armP15:antigenHAFL:detect_reagentIgG2       0.101     0.769   0.131   0.896
+armP15:antigenHASK:detect_reagentIgG2       0.624     0.772   0.809   0.419
+armP15:antigenHAFL:detect_reagentIgG3      -0.340     0.769  -0.442   0.659
+armP15:antigenHASK:detect_reagentIgG3       0.549     0.772   0.711   0.477
+armP15:antigenHAFL:detect_reagentIgG4      -0.094     0.769  -0.122   0.903
+armP15:antigenHASK:detect_reagentIgG4       0.194     0.772   0.251   0.802
+armP15:antigenHAFL:detect_reagentIgM       -0.231     0.769  -0.301   0.764
+armP15:antigenHASK:detect_reagentIgM        0.671     0.772   0.870   0.385</code></pre>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<pre><code>$effect
+            IgG        FcaR      FcgR1A  FcgR2A131     FcgR2b  FcgR3A158
+NA   -0.6111130 -0.09878732  0.08002734 -0.4982230 -0.2626185 -0.5827547
+HAFL -0.7018388  0.80434702 -0.06467409 -0.8110427 -0.3460651 -0.5441180
+HASK -1.0312307  1.55402286 -0.04168434 -0.7423408 -0.6643228 -0.6273101
+          FcgR3b         IgA        IgA1       IgA2       IgG1       IgG2
+NA   -0.07784394 -0.09724546 -0.07407474 0.02461931 -0.4307694 -0.3547720
+HAFL -0.11226840  0.32142243  0.63982243 0.26009013 -0.3664426 -0.3446205
+HASK -0.52649413  0.32172955  1.23737417 0.80242191 -0.8216410 -0.1506284
+            IgG3        IgG4        IgM
+NA    0.04674328  0.05103541 -0.4494581
+HAFL -0.38373022 -0.13337517 -0.7713933
+HASK  0.17581195 -0.17508892 -0.1982282
+
+$variance
+            IgG      FcaR    FcgR1A FcgR2A131    FcgR2b FcgR3A158    FcgR3b
+NA   0.07309033 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+HAFL 0.07309033 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+HASK 0.07823575 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+           IgA      IgA1      IgA2      IgG1      IgG2      IgG3      IgG4
+NA   0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+HAFL 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+HASK 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775 0.2223775
+           IgM
+NA   0.2223775
+HAFL 0.2223775
+HASK 0.2223775
+
+$tvalue
+          IgG      FcaR     FcgR1A FcgR2A131    FcgR2b FcgR3A158    FcgR3b
+NA   2.260433 0.2094864 0.16970435  1.056521 0.5569035  1.235778 0.1650743
+HAFL 2.596016 1.7056819 0.13714655  1.719881 0.7338587  1.153846 0.2380741
+HASK 3.686831 3.2954292 0.08839497  1.574193 1.4087494  1.330261 1.1164727
+           IgA      IgA1       IgA2      IgG1      IgG2       IgG3      IgG4
+NA   0.2062167 0.1570814 0.05220721 0.9134807 0.7523223 0.09912285 0.1082247
+HAFL 0.6816019 1.3567944 0.55154183 0.7770707 0.7307952 0.81373049 0.2828327
+HASK 0.6822531 2.6239505 1.70159955 1.7423552 0.3194195 0.37282325 0.3712900
+           IgM
+NA   0.9531117
+HAFL 1.6358009
+HASK 0.4203587
+
+$pvalue
+              IgG         FcaR    FcgR1A  FcgR2A131    FcgR2b FcgR3A158
+NA   0.0237944142 0.8340685642 0.8652427 0.29073005 0.5775934 0.2165412
+HAFL 0.0094311600 0.0880673214 0.8909150 0.08545416 0.4630349 0.2485635
+HASK 0.0002270643 0.0009827145 0.9295628 0.11544291 0.1589093 0.1834323
+        FcgR3b       IgA        IgA1       IgA2       IgG1      IgG2      IgG3
+NA   0.8688855 0.8366216 0.875180712 0.95836359 0.36098975 0.4518573 0.9210407
+HAFL 0.8118236 0.4954907 0.174846541 0.58126230 0.43711708 0.4649042 0.4157994
+HASK 0.2642198 0.4950789 0.008691643 0.08883046 0.08144632 0.7494084 0.7092800
+          IgG4       IgM
+NA   0.9138175 0.3405335
+HAFL 0.7773051 0.1018813
+HASK 0.7104215 0.6742234</code></pre>
+<pre class="r"><code>antigen=rownames(bb$effect)
+antibody=colnames(bb$effect)
+basic=matrix(nrow=length(antigen),ncol=length(antibody))
+pp= matrix(nrow=length(antigen),ncol=length(antibody))
+vv= matrix(nrow=length(antigen),ncol=length(antibody))
+for (i in 1:length(antigen)) {
+  for (j in 1:length(antibody)) {
+    index=which(data15$antigen==antigen[i] &amp; data15$detect_reagent==antibody[j])
+    dd=data15[index,]
+    x=dd$value_reported[which(dd$arm==&quot;NP15&quot;)]
+        y=dd$value_reported[which(dd$arm==&quot;P15&quot;)]
+        basic[i,j]=mean(y)-mean(x)
+        vv[i,j]=var(x)/length(x)+var(y)/length(y)
+        pp[i,j]=2*(1-pnorm(abs(basic[i,j])/sqrt(vv[i,j])))
+  }
+}</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>comparison=merge(meanData,varianceData)
+comparison</code></pre>
+<pre><code>   antigen  antibody    meffects    deffects mvariances dvariances
+1     HAFL      FcaR  0.80434702  0.80434702 0.22237749 0.48751296
+2     HAFL    FcgR1A -0.06467409 -0.06467409 0.22237749 0.04126657
+3     HAFL FcgR2A131 -0.81104266 -0.81104266 0.22237749 0.40339166
+4     HAFL    FcgR2b -0.34606513 -0.34606513 0.22237749 0.58296761
+5     HAFL FcgR3A158 -0.54411801 -0.54411801 0.22237749 0.27003835
+6     HAFL    FcgR3b -0.11226840 -0.11226840 0.22237749 0.77075494
+7     HAFL       IgA  0.32142243  0.32142243 0.22237749 0.38270959
+8     HAFL      IgA1  0.63982243  0.63982243 0.22237749 0.28901214
+9     HAFL      IgA2  0.26009013  0.26009013 0.22237749 0.04500947
+10    HAFL       IgG -0.70183879 -0.71973709 0.07309033 0.29860178
+11    HAFL      IgG1 -0.36644257 -0.36644257 0.22237749 0.94045333
+12    HAFL      IgG2 -0.34462051 -0.34462051 0.22237749 0.02165175
+13    HAFL      IgG3 -0.38373022 -0.38373022 0.22237749 0.16755573
+14    HAFL      IgG4 -0.13337517 -0.13337517 0.22237749 0.01338632
+15    HAFL       IgM -0.77139331 -0.77139331 0.22237749 0.19463613
+16    HASK      FcaR  1.55402286  1.55402286 0.22237749 0.25157495
+17    HASK    FcgR1A -0.04168434 -0.04168434 0.22237749 0.03295792
+18    HASK FcgR2A131 -0.74234075 -0.74234075 0.22237749 0.26616734
+19    HASK    FcgR2b -0.66432281 -0.66432281 0.22237749 0.22701369
+20    HASK FcgR3A158 -0.62731010 -0.62731010 0.22237749 0.19122358
+21    HASK    FcgR3b -0.52649413 -0.52649413 0.22237749 0.30392309
+22    HASK       IgA  0.32172955  0.32172955 0.22237749 0.19277040
+23    HASK      IgA1  1.23737417  1.23737417 0.22237749 0.07254500
+24    HASK      IgA2  0.80242191  0.80242191 0.22237749 0.02764425
+25    HASK       IgG -1.03123070 -1.13818344 0.07823575 0.10574880
+26    HASK      IgG1 -0.82164100 -0.82164100 0.22237749 0.58733386
+27    HASK      IgG2 -0.15062838 -0.15062838 0.22237749 0.04716632
+28    HASK      IgG3  0.17581195  0.17581195 0.22237749 0.23281541
+29    HASK      IgG4 -0.17508892 -0.17508892 0.22237749 0.05933507
+30    HASK       IgM -0.19822823 -0.19822823 0.22237749 0.19292620
+31      NA      FcaR -0.09878732 -0.09878732 0.22237749 0.16844999
+32      NA    FcgR1A  0.08002734  0.08002734 0.22237749 0.06192446
+33      NA FcgR2A131 -0.49822295 -0.49822295 0.22237749 0.10496912
+34      NA    FcgR2b -0.26261851 -0.26261851 0.22237749 0.01099677
+35      NA FcgR3A158 -0.58275471 -0.58275471 0.22237749 0.12588275
+36      NA    FcgR3b -0.07784394 -0.07784394 0.22237749 0.01031897
+37      NA       IgA -0.09724546 -0.09724546 0.22237749 0.11136028
+38      NA      IgA1 -0.07407474 -0.07407474 0.22237749 0.07070425
+39      NA      IgA2  0.02461931  0.02461931 0.22237749 0.02071441
+40      NA       IgG -0.61111300 -0.62901130 0.07309033 0.10507475
+41      NA      IgG1 -0.43076937 -0.43076937 0.22237749 0.20441694
+42      NA      IgG2 -0.35477200 -0.35477200 0.22237749 0.12060338
+43      NA      IgG3  0.04674328  0.04674328 0.22237749 0.02640365
+44      NA      IgG4  0.05103541  0.05103541 0.22237749 0.00204012
+45      NA       IgM -0.44945809 -0.44945809 0.22237749 0.05734161</code></pre>
+<div id="model-based-volcano" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue        fdr
+3     HASK       IgG -1.03123070 0.0002270643 0.01021789
+6     HASK      FcaR  1.55402286 0.0009827145 0.02211108
+27    HASK      IgA1  1.23737417 0.0086916426 0.10610055
+2     HAFL       IgG -0.70183879 0.0094311600 0.10610055
+1       NA       IgG -0.61111300 0.0237944142 0.21414973
+33    HASK      IgG1 -0.82164100 0.0814463157 0.44415231
+11    HAFL FcgR2A131 -0.81104266 0.0854541589 0.44415231
+5     HAFL      FcaR  0.80434702 0.0880673214 0.44415231
+30    HASK      IgA2  0.80242191 0.0888304616 0.44415231
+44    HAFL       IgM -0.77139331 0.1018812547 0.45846565
+12    HASK FcgR2A131 -0.74234075 0.1154429123 0.47226646
+15    HASK    FcgR2b -0.66432281 0.1589092790 0.58960378
+26    HAFL      IgA1  0.63982243 0.1748465414 0.58960378
+18    HASK FcgR3A158 -0.62731010 0.1834322873 0.58960378
+16      NA FcgR3A158 -0.58275471 0.2165411838 0.64962355
+17    HAFL FcgR3A158 -0.54411801 0.2485634866 0.69908481
+21    HASK    FcgR3b -0.52649413 0.2642198342 0.69940544
+10      NA FcgR2A131 -0.49822295 0.2907300476 0.72682512
+43      NA       IgM -0.44945809 0.3405334952 0.80652670
+31      NA      IgG1 -0.43076937 0.3609897548 0.81222695
+38    HAFL      IgG3 -0.38373022 0.4157993658 0.82581790
+32    HAFL      IgG1 -0.36644257 0.4371170849 0.82581790
+34      NA      IgG2 -0.35477200 0.4518572680 0.82581790
+14    HAFL    FcgR2b -0.34606513 0.4630348851 0.82581790
+35    HAFL      IgG2 -0.34462051 0.4649042345 0.82581790
+24    HASK       IgA  0.32172955 0.4950789049 0.82581790
+23    HAFL       IgA  0.32142243 0.4954907422 0.82581790
+13      NA    FcgR2b -0.26261851 0.5775933937 0.90195874
+29    HAFL      IgA2  0.26009013 0.5812622997 0.90195874
+45    HASK       IgM -0.19822823 0.6742234063 0.95068919
+39    HASK      IgG3  0.17581195 0.7092799982 0.95068919
+42    HASK      IgG4 -0.17508892 0.7104215396 0.95068919
+36    HASK      IgG2 -0.15062838 0.7494084482 0.95068919
+41    HAFL      IgG4 -0.13337517 0.7773051079 0.95068919
+20    HAFL    FcgR3b -0.11226840 0.8118236356 0.95068919
+4       NA      FcaR -0.09878732 0.8340685642 0.95068919
+22      NA       IgA -0.09724546 0.8366216175 0.95068919
+7       NA    FcgR1A  0.08002734 0.8652426539 0.95068919
+19      NA    FcgR3b -0.07784394 0.8688855153 0.95068919
+25      NA      IgA1 -0.07407474 0.8751807125 0.95068919
+8     HAFL    FcgR1A -0.06467409 0.8909149578 0.95068919
+40      NA      IgG4  0.05103541 0.9138174917 0.95068919
+37      NA      IgG3  0.04674328 0.9210407335 0.95068919
+9     HASK    FcgR1A -0.04168434 0.9295627588 0.95068919
+28      NA      IgA2  0.02461931 0.9583635919 0.95836359</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="original-volcano" class="section level4">
+<h4>original volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue          fdr
+30    HASK      IgA2  0.80242191 1.392008e-06 6.264038e-05
+27    HASK      IgA1  1.23737417 4.346901e-06 9.780527e-05
+3     HASK       IgG -1.13818344 4.651667e-04 6.977500e-03
+6     HASK      FcaR  1.55402286 1.946332e-03 2.189623e-02
+13      NA    FcgR2b -0.26261851 1.226812e-02 1.104131e-01
+35    HAFL      IgG2 -0.34462051 1.917858e-02 1.438394e-01
+1       NA       IgG -0.62901130 5.232133e-02 3.363514e-01
+43      NA       IgM -0.44945809 6.052402e-02 3.404476e-01
+44    HAFL       IgM -0.77139331 8.037853e-02 4.018927e-01
+16      NA FcgR3A158 -0.58275471 1.004885e-01 4.521984e-01
+10      NA FcgR2A131 -0.49822295 1.241035e-01 5.076962e-01
+12    HASK FcgR2A131 -0.74234075 1.501833e-01 5.241436e-01
+18    HASK FcgR3A158 -0.62731010 1.514193e-01 5.241436e-01
+15    HASK    FcgR2b -0.66432281 1.632300e-01 5.246679e-01
+2     HAFL       IgG -0.71973709 1.877960e-01 5.539592e-01
+11    HAFL FcgR2A131 -0.81104266 2.016133e-01 5.539592e-01
+29    HAFL      IgA2  0.26009013 2.202184e-01 5.539592e-01
+26    HAFL      IgA1  0.63982243 2.339877e-01 5.539592e-01
+41    HAFL      IgG4 -0.13337517 2.490029e-01 5.539592e-01
+5     HAFL      FcaR  0.80434702 2.493234e-01 5.539592e-01
+40      NA      IgG4  0.05103541 2.585143e-01 5.539592e-01
+33    HASK      IgG1 -0.82164100 2.836704e-01 5.755928e-01
+17    HAFL FcgR3A158 -0.54411801 2.950621e-01 5.755928e-01
+34      NA      IgG2 -0.35477200 3.069828e-01 5.755928e-01
+21    HASK    FcgR3b -0.52649413 3.395684e-01 5.808818e-01
+31      NA      IgG1 -0.43076937 3.407085e-01 5.808818e-01
+38    HAFL      IgG3 -0.38373022 3.485291e-01 5.808818e-01
+19      NA    FcgR3b -0.07784394 4.434896e-01 7.083166e-01
+24    HASK       IgA  0.32172955 4.636955e-01 7.083166e-01
+42    HASK      IgG4 -0.17508892 4.722694e-01 7.083166e-01
+36    HASK      IgG2 -0.15062838 4.879514e-01 7.083166e-01
+23    HAFL       IgA  0.32142243 6.033654e-01 8.484827e-01
+14    HAFL    FcgR2b -0.34606513 6.503704e-01 8.564587e-01
+45    HASK       IgM -0.19822823 6.517699e-01 8.564587e-01
+32    HAFL      IgG1 -0.36644257 7.055305e-01 8.564587e-01
+39    HASK      IgG3  0.17581195 7.155818e-01 8.564587e-01
+7       NA    FcgR1A  0.08002734 7.477607e-01 8.564587e-01
+8     HAFL    FcgR1A -0.06467409 7.502048e-01 8.564587e-01
+22      NA       IgA -0.09724546 7.707379e-01 8.564587e-01
+37      NA      IgG3  0.04674328 7.736031e-01 8.564587e-01
+25      NA      IgA1 -0.07407474 7.805684e-01 8.564587e-01
+4       NA      FcaR -0.09878732 8.097921e-01 8.564587e-01
+9     HASK    FcgR1A -0.04168434 8.183939e-01 8.564587e-01
+28      NA      IgA2  0.02461931 8.641794e-01 8.838198e-01
+20    HAFL    FcgR3b -0.11226840 8.982447e-01 8.982447e-01</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div
+id="mode-2-third-order-model-independent-error-feature-specific-variance"
+class="section level3">
+<h3>Mode 2 : third order model + independent error + feature-specific
+variance</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{jkl}+
+e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})\]</span></p>
+<pre><code>                                            Value Std.Error t-value p-value
+(Intercept)                                10.580     0.199  53.129   0.000
+armP15                                     -0.608     0.234  -2.600   0.009
+antigenHAFL                                 3.349     0.353   9.486   0.000
+antigenHASK                                 3.593     0.256  14.016   0.000
+detect_reagentFcaR                          1.353     0.348   3.884   0.000
+detect_reagentFcgR1A                       -1.060     0.264  -4.014   0.000
+detect_reagentFcgR2A131                    -0.451     0.303  -1.487   0.137
+detect_reagentFcgR2b                       -1.568     0.214  -7.316   0.000
+detect_reagentFcgR3A158                    -0.512     0.317  -1.615   0.107
+detect_reagentFcgR3b                       -2.064     0.213  -9.668   0.000
+detect_reagentIgA                          -0.153     0.306  -0.499   0.618
+detect_reagentIgA1                         -1.268     0.274  -4.625   0.000
+detect_reagentIgA2                         -2.027     0.223  -9.089   0.000
+detect_reagentIgG1                         -0.136     0.373  -0.364   0.716
+detect_reagentIgG2                         -0.392     0.315  -1.246   0.213
+detect_reagentIgG3                         -1.962     0.229  -8.583   0.000
+detect_reagentIgG4                         -2.376     0.203 -11.676   0.000
+detect_reagentIgM                           0.467     0.261   1.787   0.074
+assayELISA                                  1.613     0.209   7.725   0.000
+assayLumBAA                                -1.350     0.206  -6.543   0.000
+armP15:antigenHAFL                         -0.091     0.516  -0.176   0.860
+armP15:antigenHASK                         -0.440     0.377  -1.167   0.243
+armP15:detect_reagentFcaR                   0.509     0.474   1.075   0.283
+armP15:detect_reagentFcgR1A                 0.688     0.341   2.019   0.044
+armP15:detect_reagentFcgR2A131              0.110     0.403   0.272   0.786
+armP15:detect_reagentFcgR2b                 0.345     0.257   1.342   0.180
+armP15:detect_reagentFcgR3A158              0.025     0.425   0.059   0.953
+armP15:detect_reagentFcgR3b                 0.530     0.256   2.073   0.038
+armP15:detect_reagentIgA                    0.511     0.409   1.250   0.212
+armP15:detect_reagentIgA1                   0.534     0.357   1.495   0.135
+armP15:detect_reagentIgA2                   0.632     0.272   2.322   0.020
+armP15:detect_reagentIgG1                   0.177     0.512   0.346   0.729
+armP15:detect_reagentIgG2                   0.253     0.422   0.600   0.549
+armP15:detect_reagentIgG3                   0.655     0.282   2.322   0.020
+armP15:detect_reagentIgG4                   0.659     0.238   2.769   0.006
+armP15:detect_reagentIgM                    0.158     0.336   0.471   0.637
+antigenHAFL:detect_reagentFcaR             -1.779     0.662  -2.689   0.007
+antigenHASK:detect_reagentFcaR             -3.020     0.516  -5.859   0.000
+antigenHAFL:detect_reagentFcgR1A           -2.960     0.416  -7.110   0.000
+antigenHASK:detect_reagentFcgR1A           -2.160     0.332  -6.502   0.000
+antigenHAFL:detect_reagentFcgR2A131         2.547     0.602   4.231   0.000
+antigenHASK:detect_reagentFcgR2A131         2.600     0.492   5.289   0.000
+antigenHAFL:detect_reagentFcgR2b            2.663     0.642   4.148   0.000
+antigenHASK:detect_reagentFcgR2b            3.243     0.424   7.648   0.000
+antigenHAFL:detect_reagentFcgR3A158         2.710     0.555   4.882   0.000
+antigenHASK:detect_reagentFcgR3A158         3.117     0.459   6.795   0.000
+antigenHAFL:detect_reagentFcgR3b            1.642     0.709   2.316   0.021
+antigenHASK:detect_reagentFcgR3b            1.786     0.468   3.817   0.000
+antigenHAFL:detect_reagentIgA              -0.337     0.599  -0.563   0.573
+antigenHASK:detect_reagentIgA              -0.878     0.460  -1.910   0.056
+antigenHAFL:detect_reagentIgA1             -1.266     0.542  -2.335   0.020
+antigenHASK:detect_reagentIgA1             -2.513     0.365  -6.884   0.000
+antigenHAFL:detect_reagentIgA2              0.102     0.394   0.259   0.796
+antigenHASK:detect_reagentIgA2             -0.020     0.298  -0.066   0.948
+antigenHAFL:detect_reagentIgG1              0.308     0.817   0.377   0.706
+antigenHASK:detect_reagentIgG1              1.254     0.658   1.906   0.057
+antigenHAFL:detect_reagentIgG2             -4.397     0.441  -9.966   0.000
+antigenHASK:detect_reagentIgG2             -4.326     0.385 -11.230   0.000
+antigenHAFL:detect_reagentIgG3             -1.730     0.467  -3.701   0.000
+antigenHASK:detect_reagentIgG3             -1.628     0.432  -3.773   0.000
+antigenHAFL:detect_reagentIgG4             -2.974     0.364  -8.174   0.000
+antigenHASK:detect_reagentIgG4             -2.839     0.311  -9.135   0.000
+antigenHAFL:detect_reagentIgM              -3.533     0.499  -7.083   0.000
+antigenHASK:detect_reagentIgM              -4.081     0.429  -9.522   0.000
+armP15:antigenHAFL:detect_reagentFcaR       0.994     0.961   1.034   0.301
+armP15:antigenHASK:detect_reagentFcaR       2.093     0.750   2.791   0.005
+armP15:antigenHAFL:detect_reagentFcgR1A    -0.054     0.607  -0.089   0.929
+armP15:antigenHASK:detect_reagentFcgR1A     0.318     0.486   0.655   0.512
+armP15:antigenHAFL:detect_reagentFcgR2A131 -0.222     0.875  -0.254   0.800
+armP15:antigenHASK:detect_reagentFcgR2A131  0.196     0.715   0.274   0.784
+armP15:antigenHAFL:detect_reagentFcgR2b     0.007     0.933   0.008   0.994
+armP15:antigenHASK:detect_reagentFcgR2b     0.038     0.618   0.062   0.951
+armP15:antigenHAFL:detect_reagentFcgR3A158  0.129     0.807   0.160   0.873
+armP15:antigenHASK:detect_reagentFcgR3A158  0.395     0.668   0.592   0.554
+armP15:antigenHAFL:detect_reagentFcgR3b     0.056     1.030   0.055   0.956
+armP15:antigenHASK:detect_reagentFcgR3b    -0.009     0.681  -0.013   0.990
+armP15:antigenHAFL:detect_reagentIgA        0.509     0.871   0.585   0.559
+armP15:antigenHASK:detect_reagentIgA        0.859     0.669   1.284   0.199
+armP15:antigenHAFL:detect_reagentIgA1       0.805     0.788   1.021   0.307
+armP15:antigenHASK:detect_reagentIgA1       1.751     0.533   3.287   0.001
+armP15:antigenHAFL:detect_reagentIgA2       0.326     0.575   0.567   0.571
+armP15:antigenHASK:detect_reagentIgA2       1.218     0.436   2.793   0.005
+armP15:antigenHAFL:detect_reagentIgG1       0.155     1.186   0.131   0.896
+armP15:antigenHASK:detect_reagentIgG1       0.049     0.956   0.051   0.959
+armP15:antigenHAFL:detect_reagentIgG2       0.101     0.643   0.157   0.875
+armP15:antigenHASK:detect_reagentIgG2       0.644     0.562   1.146   0.252
+armP15:antigenHAFL:detect_reagentIgG3      -0.340     0.680  -0.499   0.618
+armP15:antigenHASK:detect_reagentIgG3       0.569     0.629   0.905   0.366
+armP15:antigenHAFL:detect_reagentIgG4      -0.094     0.531  -0.176   0.860
+armP15:antigenHASK:detect_reagentIgG4       0.214     0.455   0.470   0.638
+armP15:antigenHAFL:detect_reagentIgM       -0.231     0.726  -0.319   0.750
+armP15:antigenHASK:detect_reagentIgM        0.691     0.624   1.107   0.268</code></pre>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<pre><code>$effect
+            IgG        FcaR      FcgR1A  FcgR2A131     FcgR2b  FcgR3A158
+NA   -0.6078755 -0.09878732  0.08002734 -0.4982230 -0.2626185 -0.5827547
+HAFL -0.6986013  0.80434702 -0.06467409 -0.8110427 -0.3460651 -0.5441180
+HASK -1.0478257  1.55402286 -0.04168434 -0.7423408 -0.6643228 -0.6273101
+          FcgR3b         IgA        IgA1       IgA2       IgG1       IgG2
+NA   -0.07784394 -0.09724546 -0.07407474 0.02461931 -0.4307694 -0.3547720
+HAFL -0.11226840  0.32142243  0.63982243 0.26009013 -0.3664426 -0.3446205
+HASK -0.52649413  0.32172955  1.23737417 0.80242191 -0.8216410 -0.1506284
+            IgG3        IgG4        IgM
+NA    0.04674328  0.05103541 -0.4494581
+HAFL -0.38373022 -0.13337517 -0.7713933
+HASK  0.17581195 -0.17508892 -0.1982282
+
+$variance
+            IgG      FcaR     FcgR1A FcgR2A131     FcgR2b FcgR3A158     FcgR3b
+NA   0.05466366 0.1697539 0.06144013 0.1076595 0.01152642 0.1260308 0.01073756
+HAFL 0.21123001 0.4875530 0.04069644 0.3915146 0.59267867 0.2594182 0.78376811
+HASK 0.08747946 0.2502891 0.03237191 0.2616747 0.22800441 0.1778022 0.31078317
+           IgA       IgA1       IgA2      IgG1       IgG2       IgG3
+NA   0.1122697 0.07284385 0.01951918 0.2070965 0.12351030 0.02479423
+HAFL 0.3805818 0.28262330 0.04521746 0.9324753 0.02351867 0.17218383
+HASK 0.1932327 0.06895626 0.02840510 0.5638714 0.05006614 0.22835218
+            IgG4        IgM
+NA   0.001968991 0.05822647
+HAFL 0.014398256 0.20235962
+HASK 0.062745693 0.18946757
+
+$tvalue
+          IgG     FcaR    FcgR1A FcgR2A131    FcgR2b FcgR3A158    FcgR3b
+NA   2.599952 0.239768 0.3228586  1.518440 2.4461221  1.641525 0.7512283
+HAFL 1.520028 1.151947 0.3205916  1.296193 0.4495191  1.068299 0.1268130
+HASK 3.542713 3.106250 0.2316801  1.451184 1.3912576  1.487694 0.9444192
+           IgA      IgA1      IgA2      IgG1      IgG2      IgG3      IgG4
+NA   0.2902272 0.2744566 0.1762159 0.9465824 1.0094801 0.2968547 1.1501375
+HAFL 0.5210173 1.2035260 1.2231248 0.3794786 2.2471639 0.9247617 1.1115271
+HASK 0.7318981 4.7120966 4.7610703 1.0941883 0.6731855 0.3679136 0.6989832
+           IgM
+NA   1.8626403
+HAFL 1.7148019
+HASK 0.4554053
+
+$pvalue
+              IgG        FcaR    FcgR1A FcgR2A131     FcgR2b FcgR3A158
+NA   0.0093236834 0.810510091 0.7468024 0.1289036 0.01444021 0.1006886
+HAFL 0.1285039480 0.249342787 0.7485199 0.1949089 0.65305720 0.2853856
+HASK 0.0003960328 0.001894765 0.8167865 0.1467286 0.16414733 0.1368315
+        FcgR3b       IgA         IgA1         IgA2      IgG1       IgG2
+NA   0.4525152 0.7716424 7.837338e-01 8.601243e-01 0.3438516 0.31274444
+HAFL 0.8990884 0.6023547 2.287728e-01 2.212826e-01 0.7043325 0.02462955
+HASK 0.3449555 0.4642308 2.451811e-06 1.925690e-06 0.2738724 0.50082929
+          IgG3      IgG4        IgM
+NA   0.7665775 0.2500873 0.06251290
+HAFL 0.3550899 0.2663416 0.08638156
+HASK 0.7129377 0.4845626 0.64881771</code></pre>
+<pre class="r"><code>antigen=rownames(bb$effect)
+antibody=colnames(bb$effect)
+basic=matrix(nrow=length(antigen),ncol=length(antibody))
+pp= matrix(nrow=length(antigen),ncol=length(antibody))
+vv= matrix(nrow=length(antigen),ncol=length(antibody))
+for (i in 1:length(antigen)) {
+  for (j in 1:length(antibody)) {
+    index=which(data15$antigen==antigen[i] &amp; data15$detect_reagent==antibody[j])
+    dd=data15[index,]
+    x=dd$value_reported[which(dd$arm==&quot;NP15&quot;)]
+        y=dd$value_reported[which(dd$arm==&quot;P15&quot;)]
+        basic[i,j]=mean(y)-mean(x)
+        vv[i,j]=var(x)/length(x)+var(y)/length(y)
+        pp[i,j]=2*(1-pnorm(abs(basic[i,j])/sqrt(vv[i,j])))
+  }
+}</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>comparison=merge(meanData,varianceData)
+comparison</code></pre>
+<pre><code>   antigen  antibody    meffects    deffects  mvariances dvariances
+1     HAFL      FcaR  0.80434702  0.80434702 0.487552957 0.48751296
+2     HAFL    FcgR1A -0.06467409 -0.06467409 0.040696438 0.04126657
+3     HAFL FcgR2A131 -0.81104266 -0.81104266 0.391514556 0.40339166
+4     HAFL    FcgR2b -0.34606513 -0.34606513 0.592678671 0.58296761
+5     HAFL FcgR3A158 -0.54411801 -0.54411801 0.259418160 0.27003835
+6     HAFL    FcgR3b -0.11226840 -0.11226840 0.783768109 0.77075494
+7     HAFL       IgA  0.32142243  0.32142243 0.380581778 0.38270959
+8     HAFL      IgA1  0.63982243  0.63982243 0.282623300 0.28901214
+9     HAFL      IgA2  0.26009013  0.26009013 0.045217464 0.04500947
+10    HAFL       IgG -0.69860130 -0.71973709 0.211230012 0.29860178
+11    HAFL      IgG1 -0.36644257 -0.36644257 0.932475266 0.94045333
+12    HAFL      IgG2 -0.34462051 -0.34462051 0.023518669 0.02165175
+13    HAFL      IgG3 -0.38373022 -0.38373022 0.172183830 0.16755573
+14    HAFL      IgG4 -0.13337517 -0.13337517 0.014398256 0.01338632
+15    HAFL       IgM -0.77139331 -0.77139331 0.202359615 0.19463613
+16    HASK      FcaR  1.55402286  1.55402286 0.250289138 0.25157495
+17    HASK    FcgR1A -0.04168434 -0.04168434 0.032371909 0.03295792
+18    HASK FcgR2A131 -0.74234075 -0.74234075 0.261674659 0.26616734
+19    HASK    FcgR2b -0.66432281 -0.66432281 0.228004406 0.22701369
+20    HASK FcgR3A158 -0.62731010 -0.62731010 0.177802176 0.19122358
+21    HASK    FcgR3b -0.52649413 -0.52649413 0.310783168 0.30392309
+22    HASK       IgA  0.32172955  0.32172955 0.193232723 0.19277040
+23    HASK      IgA1  1.23737417  1.23737417 0.068956264 0.07254500
+24    HASK      IgA2  0.80242191  0.80242191 0.028405103 0.02764425
+25    HASK       IgG -1.04782574 -1.13818344 0.087479457 0.10574880
+26    HASK      IgG1 -0.82164100 -0.82164100 0.563871357 0.58733386
+27    HASK      IgG2 -0.15062838 -0.15062838 0.050066139 0.04716632
+28    HASK      IgG3  0.17581195  0.17581195 0.228352184 0.23281541
+29    HASK      IgG4 -0.17508892 -0.17508892 0.062745693 0.05933507
+30    HASK       IgM -0.19822823 -0.19822823 0.189467572 0.19292620
+31      NA      FcaR -0.09878732 -0.09878732 0.169753943 0.16844999
+32      NA    FcgR1A  0.08002734  0.08002734 0.061440130 0.06192446
+33      NA FcgR2A131 -0.49822295 -0.49822295 0.107659510 0.10496912
+34      NA    FcgR2b -0.26261851 -0.26261851 0.011526419 0.01099677
+35      NA FcgR3A158 -0.58275471 -0.58275471 0.126030831 0.12588275
+36      NA    FcgR3b -0.07784394 -0.07784394 0.010737563 0.01031897
+37      NA       IgA -0.09724546 -0.09724546 0.112269670 0.11136028
+38      NA      IgA1 -0.07407474 -0.07407474 0.072843852 0.07070425
+39      NA      IgA2  0.02461931  0.02461931 0.019519179 0.02071441
+40      NA       IgG -0.60787551 -0.62901130 0.054663656 0.10507475
+41      NA      IgG1 -0.43076937 -0.43076937 0.207096523 0.20441694
+42      NA      IgG2 -0.35477200 -0.35477200 0.123510298 0.12060338
+43      NA      IgG3  0.04674328  0.04674328 0.024794225 0.02640365
+44      NA      IgG4  0.05103541  0.05103541 0.001968991 0.00204012
+45      NA       IgM -0.44945809 -0.44945809 0.058226466 0.05734161</code></pre>
+<div id="model-based-volcano-1" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue          fdr
+30    HASK      IgA2  0.80242191 1.925690e-06 5.516575e-05
+27    HASK      IgA1  1.23737417 2.451811e-06 5.516575e-05
+3     HASK       IgG -1.04782574 3.960328e-04 5.940492e-03
+6     HASK      FcaR  1.55402286 1.894765e-03 2.131610e-02
+1       NA       IgG -0.60787551 9.323683e-03 8.391315e-02
+13      NA    FcgR2b -0.26261851 1.444021e-02 1.083016e-01
+35    HAFL      IgG2 -0.34462051 2.462955e-02 1.583328e-01
+43      NA       IgM -0.44945809 6.251290e-02 3.516350e-01
+44    HAFL       IgM -0.77139331 8.638156e-02 4.319078e-01
+16      NA FcgR3A158 -0.58275471 1.006886e-01 4.530986e-01
+2     HAFL       IgG -0.69860130 1.285039e-01 4.716278e-01
+10      NA FcgR2A131 -0.49822295 1.289036e-01 4.716278e-01
+18    HASK FcgR3A158 -0.62731010 1.368315e-01 4.716278e-01
+12    HASK FcgR2A131 -0.74234075 1.467286e-01 4.716278e-01
+15    HASK    FcgR2b -0.66432281 1.641473e-01 4.924420e-01
+11    HAFL FcgR2A131 -0.81104266 1.949089e-01 5.481814e-01
+29    HAFL      IgA2  0.26009013 2.212826e-01 5.583630e-01
+26    HAFL      IgA1  0.63982243 2.287728e-01 5.583630e-01
+5     HAFL      FcaR  0.80434702 2.493428e-01 5.583630e-01
+40      NA      IgG4  0.05103541 2.500873e-01 5.583630e-01
+41    HAFL      IgG4 -0.13337517 2.663416e-01 5.583630e-01
+33    HASK      IgG1 -0.82164100 2.738724e-01 5.583630e-01
+17    HAFL FcgR3A158 -0.54411801 2.853856e-01 5.583630e-01
+34      NA      IgG2 -0.35477200 3.127444e-01 5.863958e-01
+31      NA      IgG1 -0.43076937 3.438516e-01 5.918165e-01
+21    HASK    FcgR3b -0.52649413 3.449555e-01 5.918165e-01
+38    HAFL      IgG3 -0.38373022 3.550899e-01 5.918165e-01
+19      NA    FcgR3b -0.07784394 4.525152e-01 7.203581e-01
+24    HASK       IgA  0.32172955 4.642308e-01 7.203581e-01
+42    HASK      IgG4 -0.17508892 4.845626e-01 7.268438e-01
+36    HASK      IgG2 -0.15062838 5.008293e-01 7.270103e-01
+23    HAFL       IgA  0.32142243 6.023547e-01 8.470613e-01
+45    HASK       IgM -0.19822823 6.488177e-01 8.547765e-01
+14    HAFL    FcgR2b -0.34606513 6.530572e-01 8.547765e-01
+32    HAFL      IgG1 -0.36644257 7.043325e-01 8.547765e-01
+39    HASK      IgG3  0.17581195 7.129377e-01 8.547765e-01
+7       NA    FcgR1A  0.08002734 7.468024e-01 8.547765e-01
+8     HAFL    FcgR1A -0.06467409 7.485199e-01 8.547765e-01
+37      NA      IgG3  0.04674328 7.665775e-01 8.547765e-01
+22      NA       IgA -0.09724546 7.716424e-01 8.547765e-01
+25      NA      IgA1 -0.07407474 7.837338e-01 8.547765e-01
+4       NA      FcaR -0.09878732 8.105101e-01 8.547765e-01
+9     HASK    FcgR1A -0.04168434 8.167865e-01 8.547765e-01
+28      NA      IgA2  0.02461931 8.601243e-01 8.796726e-01
+20    HAFL    FcgR3b -0.11226840 8.990884e-01 8.990884e-01</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="original-volcano-1" class="section level4">
+<h4>original volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue          fdr
+30    HASK      IgA2  0.80242191 1.392008e-06 6.264038e-05
+27    HASK      IgA1  1.23737417 4.346901e-06 9.780527e-05
+3     HASK       IgG -1.13818344 4.651667e-04 6.977500e-03
+6     HASK      FcaR  1.55402286 1.946332e-03 2.189623e-02
+13      NA    FcgR2b -0.26261851 1.226812e-02 1.104131e-01
+35    HAFL      IgG2 -0.34462051 1.917858e-02 1.438394e-01
+1       NA       IgG -0.62901130 5.232133e-02 3.363514e-01
+43      NA       IgM -0.44945809 6.052402e-02 3.404476e-01
+44    HAFL       IgM -0.77139331 8.037853e-02 4.018927e-01
+16      NA FcgR3A158 -0.58275471 1.004885e-01 4.521984e-01
+10      NA FcgR2A131 -0.49822295 1.241035e-01 5.076962e-01
+12    HASK FcgR2A131 -0.74234075 1.501833e-01 5.241436e-01
+18    HASK FcgR3A158 -0.62731010 1.514193e-01 5.241436e-01
+15    HASK    FcgR2b -0.66432281 1.632300e-01 5.246679e-01
+2     HAFL       IgG -0.71973709 1.877960e-01 5.539592e-01
+11    HAFL FcgR2A131 -0.81104266 2.016133e-01 5.539592e-01
+29    HAFL      IgA2  0.26009013 2.202184e-01 5.539592e-01
+26    HAFL      IgA1  0.63982243 2.339877e-01 5.539592e-01
+41    HAFL      IgG4 -0.13337517 2.490029e-01 5.539592e-01
+5     HAFL      FcaR  0.80434702 2.493234e-01 5.539592e-01
+40      NA      IgG4  0.05103541 2.585143e-01 5.539592e-01
+33    HASK      IgG1 -0.82164100 2.836704e-01 5.755928e-01
+17    HAFL FcgR3A158 -0.54411801 2.950621e-01 5.755928e-01
+34      NA      IgG2 -0.35477200 3.069828e-01 5.755928e-01
+21    HASK    FcgR3b -0.52649413 3.395684e-01 5.808818e-01
+31      NA      IgG1 -0.43076937 3.407085e-01 5.808818e-01
+38    HAFL      IgG3 -0.38373022 3.485291e-01 5.808818e-01
+19      NA    FcgR3b -0.07784394 4.434896e-01 7.083166e-01
+24    HASK       IgA  0.32172955 4.636955e-01 7.083166e-01
+42    HASK      IgG4 -0.17508892 4.722694e-01 7.083166e-01
+36    HASK      IgG2 -0.15062838 4.879514e-01 7.083166e-01
+23    HAFL       IgA  0.32142243 6.033654e-01 8.484827e-01
+14    HAFL    FcgR2b -0.34606513 6.503704e-01 8.564587e-01
+45    HASK       IgM -0.19822823 6.517699e-01 8.564587e-01
+32    HAFL      IgG1 -0.36644257 7.055305e-01 8.564587e-01
+39    HASK      IgG3  0.17581195 7.155818e-01 8.564587e-01
+7       NA    FcgR1A  0.08002734 7.477607e-01 8.564587e-01
+8     HAFL    FcgR1A -0.06467409 7.502048e-01 8.564587e-01
+22      NA       IgA -0.09724546 7.707379e-01 8.564587e-01
+37      NA      IgG3  0.04674328 7.736031e-01 8.564587e-01
+25      NA      IgA1 -0.07407474 7.805684e-01 8.564587e-01
+4       NA      FcaR -0.09878732 8.097921e-01 8.564587e-01
+9     HASK    FcgR1A -0.04168434 8.183939e-01 8.564587e-01
+28      NA      IgA2  0.02461931 8.641794e-01 8.838198e-01
+20    HAFL    FcgR3b -0.11226840 8.982447e-01 8.982447e-01</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div
+id="model-3-third-order-model-random-intercept-feature-specific-variance"
+class="section level3">
+<h3>Model 3: third order model + random intercept + feature-specific
+variance</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
+e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})\]</span></p>
+<pre><code>                                            Value Std.Error   DF t-value
+(Intercept)                                10.637     0.192 2007  55.385
+armP15                                     -0.608     0.228   41  -2.660
+antigenHAFL                                 3.349     0.341 2007   9.833
+antigenHASK                                 3.576     0.242 2007  14.752
+detect_reagentFcaR                          1.380     0.325 2007   4.251
+detect_reagentFcgR1A                       -1.033     0.250 2007  -4.137
+detect_reagentFcgR2A131                    -0.423     0.277 2007  -1.529
+detect_reagentFcgR2b                       -1.541     0.197 2007  -7.836
+detect_reagentFcgR3A158                    -0.485     0.291 2007  -1.664
+detect_reagentFcgR3b                       -2.037     0.196 2007 -10.366
+detect_reagentIgA                          -0.126     0.282 2007  -0.446
+detect_reagentIgA1                         -1.241     0.255 2007  -4.869
+detect_reagentIgA2                         -2.000     0.209 2007  -9.558
+detect_reagentIgG1                         -0.109     0.358 2007  -0.303
+detect_reagentIgG2                         -0.365     0.302 2007  -1.208
+detect_reagentIgG3                         -1.935     0.212 2007  -9.123
+detect_reagentIgG4                         -2.349     0.198 2007 -11.876
+detect_reagentIgM                           0.494     0.242 2007   2.044
+assayELISA                                  1.526     0.196 2007   7.771
+assayLumBAA                                -1.432     0.194 2007  -7.372
+armP15:antigenHAFL                         -0.091     0.497 2007  -0.182
+armP15:antigenHASK                         -0.428     0.357 2007  -1.201
+armP15:detect_reagentFcaR                   0.508     0.441 2007   1.153
+armP15:detect_reagentFcgR1A                 0.687     0.322 2007   2.130
+armP15:detect_reagentFcgR2A131              0.109     0.366 2007   0.297
+armP15:detect_reagentFcgR2b                 0.344     0.233 2007   1.477
+armP15:detect_reagentFcgR3A158              0.024     0.389 2007   0.062
+armP15:detect_reagentFcgR3b                 0.529     0.233 2007   2.272
+armP15:detect_reagentIgA                    0.510     0.375 2007   1.360
+armP15:detect_reagentIgA1                   0.533     0.331 2007   1.610
+armP15:detect_reagentIgA2                   0.632     0.255 2007   2.475
+armP15:detect_reagentIgG1                   0.176     0.492 2007   0.358
+armP15:detect_reagentIgG2                   0.252     0.406 2007   0.620
+armP15:detect_reagentIgG3                   0.654     0.260 2007   2.513
+armP15:detect_reagentIgG4                   0.658     0.235 2007   2.798
+armP15:detect_reagentIgM                    0.157     0.309 2007   0.509
+antigenHAFL:detect_reagentFcaR             -1.779     0.649 2007  -2.743
+antigenHASK:detect_reagentFcaR             -3.003     0.501 2007  -5.996
+antigenHAFL:detect_reagentFcgR1A           -2.960     0.395 2007  -7.501
+antigenHASK:detect_reagentFcgR1A           -2.143     0.313 2007  -6.838
+antigenHAFL:detect_reagentFcgR2A131         2.547     0.568 2007   4.487
+antigenHASK:detect_reagentFcgR2A131         2.617     0.461 2007   5.671
+antigenHAFL:detect_reagentFcgR2b            2.663     0.607 2007   4.388
+antigenHASK:detect_reagentFcgR2b            3.260     0.394 2007   8.266
+antigenHAFL:detect_reagentFcgR3A158         2.710     0.522 2007   5.192
+antigenHASK:detect_reagentFcgR3A158         3.134     0.430 2007   7.284
+antigenHAFL:detect_reagentFcgR3b            1.642     0.674 2007   2.438
+antigenHASK:detect_reagentFcgR3b            1.803     0.435 2007   4.146
+antigenHAFL:detect_reagentIgA              -0.337     0.581 2007  -0.581
+antigenHASK:detect_reagentIgA              -0.860     0.440 2007  -1.957
+antigenHAFL:detect_reagentIgA1             -1.266     0.535 2007  -2.367
+antigenHASK:detect_reagentIgA1             -2.496     0.354 2007  -7.043
+antigenHAFL:detect_reagentIgA2              0.102     0.376 2007   0.272
+antigenHASK:detect_reagentIgA2             -0.002     0.291 2007  -0.008
+antigenHAFL:detect_reagentIgG1              0.308     0.791 2007   0.389
+antigenHASK:detect_reagentIgG1              1.271     0.635 2007   2.002
+antigenHAFL:detect_reagentIgG2             -4.397     0.424 2007 -10.367
+antigenHASK:detect_reagentIgG2             -4.309     0.365 2007 -11.811
+antigenHAFL:detect_reagentIgG3             -1.730     0.447 2007  -3.872
+antigenHASK:detect_reagentIgG3             -1.611     0.412 2007  -3.907
+antigenHAFL:detect_reagentIgG4             -2.974     0.356 2007  -8.361
+antigenHASK:detect_reagentIgG4             -2.821     0.293 2007  -9.640
+antigenHAFL:detect_reagentIgM              -3.533     0.482 2007  -7.328
+antigenHASK:detect_reagentIgM              -4.064     0.411 2007  -9.894
+armP15:antigenHAFL:detect_reagentFcaR       0.994     0.942 2007   1.055
+armP15:antigenHASK:detect_reagentFcaR       2.081     0.728 2007   2.857
+armP15:antigenHAFL:detect_reagentFcgR1A    -0.054     0.575 2007  -0.094
+armP15:antigenHASK:detect_reagentFcgR1A     0.306     0.458 2007   0.669
+armP15:antigenHAFL:detect_reagentFcgR2A131 -0.222     0.825 2007  -0.269
+armP15:antigenHASK:detect_reagentFcgR2A131  0.184     0.671 2007   0.274
+armP15:antigenHAFL:detect_reagentFcgR2b     0.007     0.882 2007   0.008
+armP15:antigenHASK:detect_reagentFcgR2b     0.026     0.575 2007   0.046
+armP15:antigenHAFL:detect_reagentFcgR3A158  0.129     0.759 2007   0.170
+armP15:antigenHASK:detect_reagentFcgR3A158  0.384     0.627 2007   0.612
+armP15:antigenHAFL:detect_reagentFcgR3b     0.056     0.978 2007   0.058
+armP15:antigenHASK:detect_reagentFcgR3b    -0.021     0.633 2007  -0.032
+armP15:antigenHAFL:detect_reagentIgA        0.509     0.844 2007   0.604
+armP15:antigenHASK:detect_reagentIgA        0.847     0.640 2007   1.324
+armP15:antigenHAFL:detect_reagentIgA1       0.805     0.778 2007   1.035
+armP15:antigenHASK:detect_reagentIgA1       1.740     0.517 2007   3.364
+armP15:antigenHAFL:detect_reagentIgA2       0.326     0.549 2007   0.595
+armP15:antigenHASK:detect_reagentIgA2       1.206     0.426 2007   2.833
+armP15:antigenHAFL:detect_reagentIgG1       0.155     1.148 2007   0.135
+armP15:antigenHASK:detect_reagentIgG1       0.037     0.922 2007   0.040
+armP15:antigenHAFL:detect_reagentIgG2       0.101     0.618 2007   0.163
+armP15:antigenHASK:detect_reagentIgG2       0.632     0.532 2007   1.188
+armP15:antigenHAFL:detect_reagentIgG3      -0.340     0.650 2007  -0.522
+armP15:antigenHASK:detect_reagentIgG3       0.557     0.601 2007   0.928
+armP15:antigenHAFL:detect_reagentIgG4      -0.094     0.519 2007  -0.180
+armP15:antigenHASK:detect_reagentIgG4       0.202     0.429 2007   0.471
+armP15:antigenHAFL:detect_reagentIgM       -0.231     0.701 2007  -0.330
+armP15:antigenHASK:detect_reagentIgM        0.679     0.598 2007   1.135
+                                           p-value
+(Intercept)                                  0.000
+armP15                                       0.011
+antigenHAFL                                  0.000
+antigenHASK                                  0.000
+detect_reagentFcaR                           0.000
+detect_reagentFcgR1A                         0.000
+detect_reagentFcgR2A131                      0.126
+detect_reagentFcgR2b                         0.000
+detect_reagentFcgR3A158                      0.096
+detect_reagentFcgR3b                         0.000
+detect_reagentIgA                            0.656
+detect_reagentIgA1                           0.000
+detect_reagentIgA2                           0.000
+detect_reagentIgG1                           0.762
+detect_reagentIgG2                           0.227
+detect_reagentIgG3                           0.000
+detect_reagentIgG4                           0.000
+detect_reagentIgM                            0.041
+assayELISA                                   0.000
+assayLumBAA                                  0.000
+armP15:antigenHAFL                           0.855
+armP15:antigenHASK                           0.230
+armP15:detect_reagentFcaR                    0.249
+armP15:detect_reagentFcgR1A                  0.033
+armP15:detect_reagentFcgR2A131               0.767
+armP15:detect_reagentFcgR2b                  0.140
+armP15:detect_reagentFcgR3A158               0.950
+armP15:detect_reagentFcgR3b                  0.023
+armP15:detect_reagentIgA                     0.174
+armP15:detect_reagentIgA1                    0.107
+armP15:detect_reagentIgA2                    0.013
+armP15:detect_reagentIgG1                    0.720
+armP15:detect_reagentIgG2                    0.535
+armP15:detect_reagentIgG3                    0.012
+armP15:detect_reagentIgG4                    0.005
+armP15:detect_reagentIgM                     0.611
+antigenHAFL:detect_reagentFcaR               0.006
+antigenHASK:detect_reagentFcaR               0.000
+antigenHAFL:detect_reagentFcgR1A             0.000
+antigenHASK:detect_reagentFcgR1A             0.000
+antigenHAFL:detect_reagentFcgR2A131          0.000
+antigenHASK:detect_reagentFcgR2A131          0.000
+antigenHAFL:detect_reagentFcgR2b             0.000
+antigenHASK:detect_reagentFcgR2b             0.000
+antigenHAFL:detect_reagentFcgR3A158          0.000
+antigenHASK:detect_reagentFcgR3A158          0.000
+antigenHAFL:detect_reagentFcgR3b             0.015
+antigenHASK:detect_reagentFcgR3b             0.000
+antigenHAFL:detect_reagentIgA                0.561
+antigenHASK:detect_reagentIgA                0.050
+antigenHAFL:detect_reagentIgA1               0.018
+antigenHASK:detect_reagentIgA1               0.000
+antigenHAFL:detect_reagentIgA2               0.786
+antigenHASK:detect_reagentIgA2               0.994
+antigenHAFL:detect_reagentIgG1               0.697
+antigenHASK:detect_reagentIgG1               0.045
+antigenHAFL:detect_reagentIgG2               0.000
+antigenHASK:detect_reagentIgG2               0.000
+antigenHAFL:detect_reagentIgG3               0.000
+antigenHASK:detect_reagentIgG3               0.000
+antigenHAFL:detect_reagentIgG4               0.000
+antigenHASK:detect_reagentIgG4               0.000
+antigenHAFL:detect_reagentIgM                0.000
+antigenHASK:detect_reagentIgM                0.000
+armP15:antigenHAFL:detect_reagentFcaR        0.292
+armP15:antigenHASK:detect_reagentFcaR        0.004
+armP15:antigenHAFL:detect_reagentFcgR1A      0.925
+armP15:antigenHASK:detect_reagentFcgR1A      0.504
+armP15:antigenHAFL:detect_reagentFcgR2A131   0.788
+armP15:antigenHASK:detect_reagentFcgR2A131   0.784
+armP15:antigenHAFL:detect_reagentFcgR2b      0.993
+armP15:antigenHASK:detect_reagentFcgR2b      0.963
+armP15:antigenHAFL:detect_reagentFcgR3A158   0.865
+armP15:antigenHASK:detect_reagentFcgR3A158   0.540
+armP15:antigenHAFL:detect_reagentFcgR3b      0.954
+armP15:antigenHASK:detect_reagentFcgR3b      0.974
+armP15:antigenHAFL:detect_reagentIgA         0.546
+armP15:antigenHASK:detect_reagentIgA         0.186
+armP15:antigenHAFL:detect_reagentIgA1        0.301
+armP15:antigenHASK:detect_reagentIgA1        0.001
+armP15:antigenHAFL:detect_reagentIgA2        0.552
+armP15:antigenHASK:detect_reagentIgA2        0.005
+armP15:antigenHAFL:detect_reagentIgG1        0.893
+armP15:antigenHASK:detect_reagentIgG1        0.968
+armP15:antigenHAFL:detect_reagentIgG2        0.870
+armP15:antigenHASK:detect_reagentIgG2        0.235
+armP15:antigenHAFL:detect_reagentIgG3        0.601
+armP15:antigenHASK:detect_reagentIgG3        0.354
+armP15:antigenHAFL:detect_reagentIgG4        0.857
+armP15:antigenHASK:detect_reagentIgG4        0.637
+armP15:antigenHAFL:detect_reagentIgM         0.742
+armP15:antigenHASK:detect_reagentIgM         0.256</code></pre>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<pre><code>$effect
+            IgG        FcaR      FcgR1A  FcgR2A131     FcgR2b  FcgR3A158
+NA   -0.6077690 -0.09964615  0.07916851 -0.4990818 -0.2634773 -0.5836135
+HAFL -0.6984947  0.80348818 -0.06553292 -0.8119015 -0.3469240 -0.5449768
+HASK -1.0359002  1.55316403 -0.04254318 -0.7431996 -0.6651816 -0.6281689
+          FcgR3b         IgA        IgA1       IgA2       IgG1       IgG2
+NA   -0.07870278 -0.09810429 -0.07493357 0.02376048 -0.4316282 -0.3556308
+HAFL -0.11312723  0.32056360  0.63896360 0.25923130 -0.3673014 -0.3454793
+HASK -0.52735297  0.32087072  1.23651534 0.80156308 -0.8224998 -0.1514872
+            IgG3        IgG4        IgM
+NA    0.04588445  0.05017658 -0.4503169
+HAFL -0.38458905 -0.13423400 -0.7722521
+HASK  0.17495312 -0.17594776 -0.1990871
+
+$variance
+            IgG      FcaR     FcgR1A FcgR2A131     FcgR2b FcgR3A158     FcgR3b
+NA   0.04996548 0.1472634 0.06076519 0.0897155 0.01327287 0.1059987 0.01313994
+HAFL 0.19803154 0.4764949 0.03031325 0.3360431 0.50542239 0.2200050 0.67711914
+HASK 0.08288273 0.2501627 0.02988120 0.2314888 0.19259892 0.1593294 0.26021162
+            IgA       IgA1       IgA2      IgG1       IgG2       IgG3
+NA   0.09568769 0.06602127 0.02357121 0.1929847 0.11937549 0.02597943
+HAFL 0.36026496 0.28742122 0.03892866 0.8433142 0.02032269 0.15336079
+HASK 0.18586308 0.07959231 0.03953610 0.5105580 0.04132127 0.20897616
+           IgG4        IgM
+NA   0.01414946 0.05283507
+HAFL 0.01840474 0.19244594
+HASK 0.05125524 0.17943829
+
+$tvalue
+          IgG      FcaR    FcgR1A FcgR2A131    FcgR2b FcgR3A158    FcgR3b
+NA   2.718964 0.2596649 0.3211627  1.666242 2.2869721  1.792566 0.6865835
+HAFL 1.569625 1.1639930 0.3763945  1.400573 0.4879857  1.161881 0.1374784
+HASK 3.598205 3.1053177 0.2461109  1.544687 1.5157003  1.573724 1.0338036
+           IgA      IgA1     IgA2      IgG1      IgG2      IgG3      IgG4
+NA   0.3171465 0.2916315 0.154762 0.9825358 1.0292997 0.2846759 0.4218238
+HAFL 0.5340762 1.1918366 1.313871 0.3999704 2.4234354 0.9820639 0.9894589
+HASK 0.7442752 4.3829243 4.031260 1.1511006 0.7452279 0.3827131 0.7771674
+           IgM
+NA   1.9591024
+HAFL 1.7603732
+HASK 0.4699866
+
+$pvalue
+              IgG        FcaR    FcgR1A  FcgR2A131     FcgR2b  FcgR3A158
+NA   0.0065486697 0.795122301 0.7480871 0.09566529 0.02219745 0.07304241
+HAFL 0.1165023376 0.244426830 0.7066237 0.16134169 0.62556000 0.24528368
+HASK 0.0003204212 0.001900748 0.8055964 0.12242205 0.12959516 0.11555134
+        FcgR3b       IgA         IgA1         IgA2      IgG1       IgG2
+NA   0.4923453 0.7511324 7.705684e-01 8.770090e-01 0.3258360 0.30333889
+HAFL 0.8906526 0.5932888 2.333253e-01 1.888896e-01 0.6891783 0.01537449
+HASK 0.3012280 0.4567100 1.170968e-05 5.547867e-05 0.2496908 0.45613393
+          IgG3      IgG4        IgM
+NA   0.7758925 0.6731537 0.05010080
+HAFL 0.3260684 0.3224387 0.07834455
+HASK 0.7019325 0.4370600 0.63836460</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>comparison=merge(meanData,varianceData)
+comparison</code></pre>
+<pre><code>   antigen  antibody    meffects    deffects mvariances dvariances
+1     HAFL      FcaR  0.80348818  0.80434702 0.47649486 0.48751296
+2     HAFL    FcgR1A -0.06553292 -0.06467409 0.03031325 0.04126657
+3     HAFL FcgR2A131 -0.81190149 -0.81104266 0.33604308 0.40339166
+4     HAFL    FcgR2b -0.34692396 -0.34606513 0.50542239 0.58296761
+5     HAFL FcgR3A158 -0.54497684 -0.54411801 0.22000501 0.27003835
+6     HAFL    FcgR3b -0.11312723 -0.11226840 0.67711914 0.77075494
+7     HAFL       IgA  0.32056360  0.32142243 0.36026496 0.38270959
+8     HAFL      IgA1  0.63896360  0.63982243 0.28742122 0.28901214
+9     HAFL      IgA2  0.25923130  0.26009013 0.03892866 0.04500947
+10    HAFL       IgG -0.69849474 -0.71973709 0.19803154 0.29860178
+11    HAFL      IgG1 -0.36730141 -0.36644257 0.84331418 0.94045333
+12    HAFL      IgG2 -0.34547934 -0.34462051 0.02032269 0.02165175
+13    HAFL      IgG3 -0.38458905 -0.38373022 0.15336079 0.16755573
+14    HAFL      IgG4 -0.13423400 -0.13337517 0.01840474 0.01338632
+15    HAFL       IgM -0.77225214 -0.77139331 0.19244594 0.19463613
+16    HASK      FcaR  1.55316403  1.55402286 0.25016272 0.25157495
+17    HASK    FcgR1A -0.04254318 -0.04168434 0.02988120 0.03295792
+18    HASK FcgR2A131 -0.74319958 -0.74234075 0.23148884 0.26616734
+19    HASK    FcgR2b -0.66518164 -0.66432281 0.19259892 0.22701369
+20    HASK FcgR3A158 -0.62816893 -0.62731010 0.15932941 0.19122358
+21    HASK    FcgR3b -0.52735297 -0.52649413 0.26021162 0.30392309
+22    HASK       IgA  0.32087072  0.32172955 0.18586308 0.19277040
+23    HASK      IgA1  1.23651534  1.23737417 0.07959231 0.07254500
+24    HASK      IgA2  0.80156308  0.80242191 0.03953610 0.02764425
+25    HASK       IgG -1.03590015 -1.13818344 0.08288273 0.10574880
+26    HASK      IgG1 -0.82249983 -0.82164100 0.51055798 0.58733386
+27    HASK      IgG2 -0.15148721 -0.15062838 0.04132127 0.04716632
+28    HASK      IgG3  0.17495312  0.17581195 0.20897616 0.23281541
+29    HASK      IgG4 -0.17594776 -0.17508892 0.05125524 0.05933507
+30    HASK       IgM -0.19908706 -0.19822823 0.17943829 0.19292620
+31      NA      FcaR -0.09964615 -0.09878732 0.14726336 0.16844999
+32      NA    FcgR1A  0.07916851  0.08002734 0.06076519 0.06192446
+33      NA FcgR2A131 -0.49908179 -0.49822295 0.08971550 0.10496912
+34      NA    FcgR2b -0.26347734 -0.26261851 0.01327287 0.01099677
+35      NA FcgR3A158 -0.58361354 -0.58275471 0.10599872 0.12588275
+36      NA    FcgR3b -0.07870278 -0.07784394 0.01313994 0.01031897
+37      NA       IgA -0.09810429 -0.09724546 0.09568769 0.11136028
+38      NA      IgA1 -0.07493357 -0.07407474 0.06602127 0.07070425
+39      NA      IgA2  0.02376048  0.02461931 0.02357121 0.02071441
+40      NA       IgG -0.60776895 -0.62901130 0.04996548 0.10507475
+41      NA      IgG1 -0.43162820 -0.43076937 0.19298469 0.20441694
+42      NA      IgG2 -0.35563084 -0.35477200 0.11937549 0.12060338
+43      NA      IgG3  0.04588445  0.04674328 0.02597943 0.02640365
+44      NA      IgG4  0.05017658  0.05103541 0.01414946 0.00204012
+45      NA       IgM -0.45031692 -0.44945809 0.05283507 0.05734161</code></pre>
+<div id="model-based-volcano-2" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue          fdr
+27    HASK      IgA1  1.23651534 1.170968e-05 0.0005269357
+30    HASK      IgA2  0.80156308 5.547867e-05 0.0012482700
+3     HASK       IgG -1.03590015 3.204212e-04 0.0048063184
+6     HASK      FcaR  1.55316403 1.900748e-03 0.0213834125
+1       NA       IgG -0.60776895 6.548670e-03 0.0589380272
+35    HAFL      IgG2 -0.34547934 1.537449e-02 0.1153086674
+13      NA    FcgR2b -0.26347734 2.219745e-02 0.1426979021
+43      NA       IgM -0.45031692 5.010080e-02 0.2818170087
+16      NA FcgR3A158 -0.58361354 7.304241e-02 0.3525504718
+44    HAFL       IgM -0.77225214 7.834455e-02 0.3525504718
+10      NA FcgR2A131 -0.49908179 9.566529e-02 0.3887854892
+18    HASK FcgR3A158 -0.62816893 1.155513e-01 0.3887854892
+2     HAFL       IgG -0.69849474 1.165023e-01 0.3887854892
+12    HASK FcgR2A131 -0.74319958 1.224220e-01 0.3887854892
+15    HASK    FcgR2b -0.66518164 1.295952e-01 0.3887854892
+11    HAFL FcgR2A131 -0.81190149 1.613417e-01 0.4537735158
+29    HAFL      IgA2  0.25923130 1.888896e-01 0.5000020057
+26    HAFL      IgA1  0.63896360 2.333253e-01 0.5350518158
+5     HAFL      FcaR  0.80348818 2.444268e-01 0.5350518158
+17    HAFL FcgR3A158 -0.54497684 2.452837e-01 0.5350518158
+33    HASK      IgG1 -0.82249983 2.496908e-01 0.5350518158
+21    HASK    FcgR3b -0.52735297 3.012280e-01 0.5643491088
+34      NA      IgG2 -0.35563084 3.033389e-01 0.5643491088
+41    HAFL      IgG4 -0.13423400 3.224387e-01 0.5643491088
+31      NA      IgG1 -0.43162820 3.258360e-01 0.5643491088
+38    HAFL      IgG3 -0.38458905 3.260684e-01 0.5643491088
+42    HASK      IgG4 -0.17594776 4.370600e-01 0.7086879740
+36    HASK      IgG2 -0.15148721 4.561339e-01 0.7086879740
+24    HASK       IgA  0.32087072 4.567100e-01 0.7086879740
+19      NA    FcgR3b -0.07870278 4.923453e-01 0.7385178906
+23    HAFL       IgA  0.32056360 5.932888e-01 0.8430659721
+14    HAFL    FcgR2b -0.34692396 6.255600e-01 0.8430659721
+45    HASK       IgM -0.19908706 6.383646e-01 0.8430659721
+40      NA      IgG4  0.05017658 6.731537e-01 0.8430659721
+32    HAFL      IgG1 -0.36730141 6.891783e-01 0.8430659721
+39    HASK      IgG3  0.17495312 7.019325e-01 0.8430659721
+8     HAFL    FcgR1A -0.06553292 7.066237e-01 0.8430659721
+7       NA    FcgR1A  0.07916851 7.480871e-01 0.8430659721
+22      NA       IgA -0.09810429 7.511324e-01 0.8430659721
+25      NA      IgA1 -0.07493357 7.705684e-01 0.8430659721
+37      NA      IgG3  0.04588445 7.758925e-01 0.8430659721
+4       NA      FcaR -0.09964615 7.951223e-01 0.8430659721
+9     HASK    FcgR1A -0.04254318 8.055964e-01 0.8430659721
+28      NA      IgA2  0.02376048 8.770090e-01 0.8906526277
+20    HAFL    FcgR3b -0.11312723 8.906526e-01 0.8906526277</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-26-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="original-volcano-2" class="section level4">
+<h4>original volcano</h4>
+<pre><code>   antigen  antibody     effects       pvalue          fdr
+30    HASK      IgA2  0.80242191 1.392008e-06 6.264038e-05
+27    HASK      IgA1  1.23737417 4.346901e-06 9.780527e-05
+3     HASK       IgG -1.13818344 4.651667e-04 6.977500e-03
+6     HASK      FcaR  1.55402286 1.946332e-03 2.189623e-02
+13      NA    FcgR2b -0.26261851 1.226812e-02 1.104131e-01
+35    HAFL      IgG2 -0.34462051 1.917858e-02 1.438394e-01
+1       NA       IgG -0.62901130 5.232133e-02 3.363514e-01
+43      NA       IgM -0.44945809 6.052402e-02 3.404476e-01
+44    HAFL       IgM -0.77139331 8.037853e-02 4.018927e-01
+16      NA FcgR3A158 -0.58275471 1.004885e-01 4.521984e-01
+10      NA FcgR2A131 -0.49822295 1.241035e-01 5.076962e-01
+12    HASK FcgR2A131 -0.74234075 1.501833e-01 5.241436e-01
+18    HASK FcgR3A158 -0.62731010 1.514193e-01 5.241436e-01
+15    HASK    FcgR2b -0.66432281 1.632300e-01 5.246679e-01
+2     HAFL       IgG -0.71973709 1.877960e-01 5.539592e-01
+11    HAFL FcgR2A131 -0.81104266 2.016133e-01 5.539592e-01
+29    HAFL      IgA2  0.26009013 2.202184e-01 5.539592e-01
+26    HAFL      IgA1  0.63982243 2.339877e-01 5.539592e-01
+41    HAFL      IgG4 -0.13337517 2.490029e-01 5.539592e-01
+5     HAFL      FcaR  0.80434702 2.493234e-01 5.539592e-01
+40      NA      IgG4  0.05103541 2.585143e-01 5.539592e-01
+33    HASK      IgG1 -0.82164100 2.836704e-01 5.755928e-01
+17    HAFL FcgR3A158 -0.54411801 2.950621e-01 5.755928e-01
+34      NA      IgG2 -0.35477200 3.069828e-01 5.755928e-01
+21    HASK    FcgR3b -0.52649413 3.395684e-01 5.808818e-01
+31      NA      IgG1 -0.43076937 3.407085e-01 5.808818e-01
+38    HAFL      IgG3 -0.38373022 3.485291e-01 5.808818e-01
+19      NA    FcgR3b -0.07784394 4.434896e-01 7.083166e-01
+24    HASK       IgA  0.32172955 4.636955e-01 7.083166e-01
+42    HASK      IgG4 -0.17508892 4.722694e-01 7.083166e-01
+36    HASK      IgG2 -0.15062838 4.879514e-01 7.083166e-01
+23    HAFL       IgA  0.32142243 6.033654e-01 8.484827e-01
+14    HAFL    FcgR2b -0.34606513 6.503704e-01 8.564587e-01
+45    HASK       IgM -0.19822823 6.517699e-01 8.564587e-01
+32    HAFL      IgG1 -0.36644257 7.055305e-01 8.564587e-01
+39    HASK      IgG3  0.17581195 7.155818e-01 8.564587e-01
+7       NA    FcgR1A  0.08002734 7.477607e-01 8.564587e-01
+8     HAFL    FcgR1A -0.06467409 7.502048e-01 8.564587e-01
+22      NA       IgA -0.09724546 7.707379e-01 8.564587e-01
+37      NA      IgG3  0.04674328 7.736031e-01 8.564587e-01
+25      NA      IgA1 -0.07407474 7.805684e-01 8.564587e-01
+4       NA      FcaR -0.09878732 8.097921e-01 8.564587e-01
+9     HASK    FcgR1A -0.04168434 8.183939e-01 8.564587e-01
+28      NA      IgA2  0.02461931 8.641794e-01 8.838198e-01
+20    HAFL    FcgR3b -0.11226840 8.982447e-01 8.982447e-01</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<p><img src="figure/pregday28_control.Rmd/unnamed-chunk-27-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.4.0 (2024-04-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19045)
+
+Matrix products: default
+
+
+locale:
+[1] LC_COLLATE=English_United States.utf8 
+[2] LC_CTYPE=English_United States.utf8   
+[3] LC_MONETARY=English_United States.utf8
+[4] LC_NUMERIC=C                          
+[5] LC_TIME=English_United States.utf8    
+
+time zone: America/New_York
+tzcode source: internal
+
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] RColorBrewer_1.1-3 RPostgres_1.4.6    danovir_0.1.0      nlme_3.1-164      
+ [5] VCA_1.5.1          stringr_1.5.1      mixOmics_6.28.0    lattice_0.22-6    
+ [9] MASS_7.3-60.2      ggrepel_0.9.5      ggplot2_3.5.1      DT_0.33           
+[13] DBI_1.2.2          dplyr_1.1.4        forestplot_3.1.5   abind_1.4-5       
+[17] checkmate_2.3.1   
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.2.1    farver_2.1.1        blob_1.2.4         
+ [4] fastmap_1.1.1       promises_1.3.0      digest_0.6.35      
+ [7] timechange_0.3.0    lifecycle_1.0.4     magrittr_2.0.3     
+[10] compiler_4.4.0      rlang_1.1.3         sass_0.4.9         
+[13] tools_4.4.0         igraph_2.0.3        utf8_1.2.4         
+[16] yaml_2.3.8          knitr_1.46          labeling_0.4.3     
+[19] rARPACK_0.11-0      htmlwidgets_1.6.4   bit_4.0.5          
+[22] plyr_1.8.9          BiocParallel_1.38.0 workflowr_1.7.1    
+[25] withr_3.0.0         purrr_1.0.2         numDeriv_2016.8-1.1
+[28] fansi_1.0.6         git2r_0.33.0        colorspace_2.1-0   
+[31] scales_1.3.0        cli_3.6.2           ellipse_0.5.0      
+[34] rmarkdown_2.26      generics_0.1.3      rstudioapi_0.16.0  
+[37] RSpectra_0.16-1     reshape2_1.4.4      minqa_1.2.6        
+[40] cachem_1.0.8        splines_4.4.0       parallel_4.4.0     
+[43] matrixStats_1.3.0   vctrs_0.6.5         boot_1.3-30        
+[46] Matrix_1.7-0        jsonlite_1.8.8      hms_1.1.3          
+[49] bit64_4.0.5         jquerylib_0.1.4     tidyr_1.3.1        
+[52] glue_1.7.0          nloptr_2.0.3        codetools_0.2-20   
+[55] lubridate_1.9.3     stringi_1.8.3       gtable_0.3.5       
+[58] later_1.3.2         lme4_1.1-35.3       munsell_0.5.1      
+[61] tibble_3.2.1        pillar_1.9.0        htmltools_0.5.8.1  
+[64] R6_2.5.1            rprojroot_2.0.4     evaluate_0.23      
+[67] highr_0.10          backports_1.4.1     corpcor_1.6.10     
+[70] httpuv_1.6.15       bslib_0.7.0         Rcpp_1.0.12        
+[73] gridExtra_2.3       xfun_0.43           fs_1.6.4           
+[76] pkgconfig_2.0.3    </code></pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

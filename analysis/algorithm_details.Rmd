@@ -1,0 +1,70 @@
+---
+title: " Treatment effects Estimation of Vaccine-induced Immune Responses: Decomposition-based Method"
+author: "Jie Zhou"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+### Model 1: decomposition-based treatment effect estimation
+
+
+
+
+$$y_{ijk}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1jk}+\gamma_{2jl}+ \gamma_{3kl}+\gamma_{4jkl}+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk}^2)$$
+in which
+$\mu$ the overall mean value,
+$\alpha_j$ the antigen effect, 
+$\beta_k$ the analyte effect, 
+$\lambda_l$ the maternal immunization effect,
+$\gamma_{1jk}$ the interaction effect between antigen and antibody.
+$\gamma_{2jl}$ the interaction effect between antigen and treatment,
+$\gamma_{3kl}$ the interaction effect between antibody and treatment,
+$\gamma_{4jkl}$ the interaction effect between antigen and antibody and treatment,
+$e_{ijlk}$ the error term. 
+We assume   $e_{ijkl} \sim N(0, \sigma_e^2)$. Collectively, we have
+
+$$y_i=x_ib+e_i$$
+where $b=(\mu,a_1,\cdots,a_m,\alpha_2,\cdots,\alpha_p,\beta_2,\cdots,\beta_q,\lambda_2,\gamma_{122},\cdots,\gamma_{1pq},\gamma_{222},\cdots,\gamma_{2p2},\gamma_{322},\cdots,\gamma_{3q2},\gamma_{4222},\cdots,\gamma_{4pq2})^T$ in which $e_i=c(e_{i11},\cdots,e_{ipq})^T$. 
+ 
+ ![](assets/forestplot1.png)
+
+### Model 2: random intercept + feature-wise Heteroskedasticity 
+
+
+
+
+$$y_{ijk}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1jk}+\gamma_{2jl}+ \gamma_{3kl}+\gamma_{4jkl}+u_{i}^{I}+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk}^2)$$
+in which
+$\mu$ the overall mean value,
+$\alpha_j$ the antigen effect, 
+$\beta_k$ the analyte effect, 
+$\lambda_l$ the maternal immunization effect,
+$\gamma_{1jk}$ the interaction effect between antigen and antibody.
+$\gamma_{2jl}$ the interaction effect between antigen and treatment,
+$\gamma_{3kl}$ the interaction effect between antibody and treatment,
+$\gamma_{4jkl}$ the interaction effect between antigen and antibody and treatment,
+$u_i^{I}$ the random intercept for subject i respectively,
+$e_{ijlk}$ the error term. 
+We assume that  $u_{i}^{I}\sim N(0,\sigma_{I}^2)$,$u_{ij}^{G}\sim N(0,\sigma_{G}^2)$, $u_{ik}^{B}\sim N(0,\sigma_{B}^2)$,  $e_{ijkl} \sim N(0, \sigma_e^2)$. Collectively, we have
+
+$$y_i=x_ib+du_i+e_i$$ where $b=(\mu,a_1,\cdots,a_m,\alpha_2,\cdots,\alpha_p,\beta_2,\cdots,\beta_q,\lambda_2,\gamma_{122},\cdots,\gamma_{1pq},\gamma_{222},\cdots,\gamma_{2p2},\gamma_{322},\cdots,\gamma_{3q2},\gamma_{4222},\cdots,\gamma_{4pq2})^T$, $\epsilon_i=(\epsilon_{i22},\cdots,\epsilon_{ipq})^T=d_iu_i+e_i$ in which $u_i=(u_1^{I},\cdots, u_p)^T$,$e_i=c(e_{i11},\cdots,e_{ipq})^T$. 
+Define a (0,1) vector $\delta=(\delta_1,\cdots,\delta_{2pq-2})$ of length $2pq-2$ for coefficient $b$.   
+
+
+### Model 3: random intercetp + random antigen effects + random antibody effects
+
+
+
+$$y_{ijk}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1jk}+\gamma_{2jl}+ \gamma_{3kl}+\gamma_{4jkl}+u_{i}^{I}+u_{ij}^{AG}+u_{ik}^{AB}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
+
+$u_i^{AG}$ and $u_i^{AB}$ the random antigen and antibody effects for subject i respectively,
+$u_i=(u_i^{I},u_{i1}^G,\cdots,u_{ip}^G,u_{i1}^B,\cdots,u_{iq}^B)^T$
+
+
+### Model 4: de-noised model 

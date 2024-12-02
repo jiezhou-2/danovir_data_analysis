@@ -1,5 +1,5 @@
 ---
-title: "Home"
+title: "Danovir Data Analysis"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +8,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+ In this website, we investigate a novel de-noised analysis for vaccine-induced immune response.
+ 
+ [Model Specification](algorithm_details.html)
+ 
+ [Real data results](realdataresults.html)
