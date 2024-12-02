@@ -1,5 +1,5 @@
 # danovir_data_analysis
 
-[danovir][]
+[link][]
 
-[danovir]: https://jiezhou-2.github.io/danovir_data_analysis
+[link]: https://jiezhou-2.github.io/danovir_data_analysis
