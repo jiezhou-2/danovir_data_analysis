@@ -1,5 +1,5 @@
 # danovir_data_analysis
 
-A [workflowr][] project.
+[danovir][]
 
-[workflowr]: https://github.com/workflowr/workflowr
+[danovir]: https://jiezhou-2.github.io/danovir_data_analysis
