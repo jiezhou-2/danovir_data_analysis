@@ -41,18 +41,30 @@ $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+
 
 
 
-## 1. data are independent repeated measurements 
+## 1. data are from full model with independent repeated measurements 
 
 ```{r,message=FALSE,echo=FALSE}
-for (esd in c(0.2,0.6,1)) {
-sd=c(0.1,0.1,0.5,1,1,2,0.5,0.5,0.5,esd)
+for (esd in c(0.4,0.6,1)) {
+sd=c(0.1,0.1,0.5,1,1,1,0.2,0.2,0.2,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
 simResults=geneData(N=40,Nag=5,Nab=6,sd=sd,type=1)
-data15=simResults$data
+data15=simResults$data[which(simResults$data$trainLabel=="training"),]
 data15$feature=paste(data15$antigen,data15$antibody,sep = "_")
 mainEffect1=danovir(data=data15,type=1)
 mainEffect3=danovir(data=data15,nfold=10,nlambda=100,type=3)
+
+testing=simResults$data[which(simResults$data$trainLabel=="testing"),]
+extdata1=merge(testing,mainEffect1$benchmark,by=c("antigen","antibody"))
+extdata2=merge(testing,mainEffect1$selected,by=c("antigen","antibody"))
+extdata3=merge(testing,mainEffect3$selected,by=c("antigen","antibody"))
+pmse1=mean((extdata1$response-extdata1$effects)^2)
+pmse2=mean((extdata2$response-extdata2$effects)^2)
+pmse3=mean((extdata3$response-extdata3$effects)^2)
+mse1=mean((c(simResults$effects)-mainEffect1$benchmark$effects)^2)
+mse2=mean((c(simResults$effects)-mainEffect1$selected$effects)^2)
+mse3=mean((c(simResults$effects)-mainEffect3$selected$effects)^2)
+print(c(pmse1,pmse2,pmse3))
 ##
 par(mfrow=c(1,3))
 x0=range(simResults$effects)
@@ -61,18 +73,18 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse1,4)," PMSE=", round(pmse1,4)))
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Random intercept: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse2,4)," PMSE=", round(pmse2,4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Denoised model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse3,4)," PMSE=", round(pmse3,4)))
 }
 ```
 
@@ -81,8 +93,8 @@ title(paste0("Denoised model: MSE=",round(mean((mainEffect3$selected$effects-sim
 ## 2. data are from full model with random intercepts 
 
 ```{r,message=FALSE,echo=FALSE}
-for (esd in c(0.2,0.6,1)) {
-sd=c(0.1,0.1,0.5,1,1,2,0.2,0.2,0.2,esd)
+for (esd in c(0.4,0.6,1)) {
+sd=c(0.1,0.1,0.5,1,1,1,0.2,0.2,0.2,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
 simResults=geneData(N=40,Nag=5,Nab=6,sd=sd,type=2)
@@ -90,6 +102,18 @@ data15=simResults$data
 data15$feature=paste(data15$antigen,data15$antibody,sep = "_")
 mainEffect1=danovir(data=data15,type=1)
 mainEffect3=danovir(data=data15,nfold=10,nlambda=100,type=3)
+
+testing=simResults$data[which(simResults$data$trainLabel=="testing"),]
+extdata1=merge(testing,mainEffect1$benchmark,by=c("antigen","antibody"))
+extdata2=merge(testing,mainEffect1$selected,by=c("antigen","antibody"))
+extdata3=merge(testing,mainEffect3$selected,by=c("antigen","antibody"))
+pmse1=mean((extdata1$response-extdata1$effects)^2)
+pmse2=mean((extdata2$response-extdata2$effects)^2)
+pmse3=mean((extdata3$response-extdata3$effects)^2)
+mse1=mean((c(simResults$effects)-mainEffect1$benchmark$effects)^2)
+mse2=mean((c(simResults$effects)-mainEffect1$selected$effects)^2)
+mse3=mean((c(simResults$effects)-mainEffect3$selected$effects)^2)
+print(c(pmse1,pmse2,pmse3))
 ##
 par(mfrow=c(1,3))
 x0=range(simResults$effects)
@@ -98,18 +122,19 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse1,4)," PMSE=", round(pmse1,4)))
+
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Random intercetp: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse2,4)," PMSE=", round(pmse2,4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Denosied model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse3,4)," PMSE=", round(pmse3,4)))
 }
 ```
 
@@ -118,15 +143,27 @@ title(paste0("Denosied model: MSE=",round(mean((mainEffect3$selected$effects-sim
 ## 3. data are from full model with  random intercept and antigen effects
 
 ```{r,message=FALSE,echo=FALSE}
-for (esd in c(0.2,0.6,1)) {
-sd=c(0.1,0.1,0.5,1,1,2,0.2,0.2,0.2,esd)
+for (esd in c(0.4,0.6,1)) {
+sd=c(0.1,0.1,0.5,1,1,1,0.2,0.2,0.2,esd)
 #sd=rep(0.01,10)
 names(sd)=c("Trag","Trab","Tragab","Ag","Ab","Agab","Rdin","Rdag","Rdab","Error")
 simResults=geneData(N=40,Nag=5,Nab=6,sd=sd,type=3)
 data15=simResults$data
 data15$feature=paste(data15$antigen,data15$antibody,sep = "_")
-mainEffect1=danovir(data=data15,type=2)
+mainEffect1=danovir(data=data15,type=1)
 mainEffect3=danovir(data=data15,nfold=10,nlambda=100,type=3)
+
+testing=simResults$data[which(simResults$data$trainLabel=="testing"),]
+extdata1=merge(testing,mainEffect1$benchmark,by=c("antigen","antibody"))
+extdata2=merge(testing,mainEffect1$selected,by=c("antigen","antibody"))
+extdata3=merge(testing,mainEffect3$selected,by=c("antigen","antibody"))
+pmse1=mean((extdata1$response-extdata1$effects)^2)
+pmse2=mean((extdata2$response-extdata2$effects)^2)
+pmse3=mean((extdata3$response-extdata3$effects)^2)
+mse1=mean((c(simResults$effects)-mainEffect1$benchmark$effects)^2)
+mse2=mean((c(simResults$effects)-mainEffect1$selected$effects)^2)
+mse3=mean((c(simResults$effects)-mainEffect3$selected$effects)^2)
+print(c(pmse1,pmse2,pmse3))
 ##
 par(mfrow=c(1,3))
 x0=range(simResults$effects)
@@ -135,18 +172,18 @@ y0=range(mainEffect1$benchmark$effects,mainEffect1$selected$effects,
 plot(simResults$effects,mainEffect1$benchmark$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Difference of mean")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Standard model: MSE=",round(mean((mainEffect1$benchmark$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse1,4)," PMSE=", round(pmse1,4)))
 
 plot(simResults$effects,mainEffect1$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="random intercept")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Random intercetp: MSE=",round(mean((mainEffect1$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse2,4)," PMSE=", round(pmse2,4)))
 
 
 plot(simResults$effects,mainEffect3$selected$effects,xlim = x0,ylim = y0,xlab="True value",ylab="Denoised value")
 abline(a=0,b=1)
 legend(x0[1],y0[2],paste0("sd(error)=",esd))
-title(paste0("Denoised model: MSE=",round(mean((mainEffect3$selected$effects-simResults$effects)^2),4)))
+title(paste0("Random intercept: MSE=",round(mse3,4)," PMSE=", round(pmse3,4)))
 }
 ```
 

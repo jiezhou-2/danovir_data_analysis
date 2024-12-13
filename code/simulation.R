@@ -1,15 +1,16 @@
 geneData=function(N=40,Nag=3,Nab=15,sd,type=1){
   n=N*Nag*Nab
   subject=paste("sub",factor(paste(formatC(seq(1, N), width=2, flag=0),sep = "")), sep = "")
+  trainLabel=sample(x=c("training","testing"),size=N,replace = T,prob = c(0.5,0.5))
   data=data.frame()
   for (i in 1:N) {
     antigen=rep(factor(paste(formatC(seq(1, Nag), width=2, flag=0),sep = "")),rep(Nab,Nag))
     antibody=rep(factor(paste(formatC(seq(1, Nab), width=2, flag=0),sep = "")),Nag)
-    datai=data.frame(subjectid=subject[i],antigen=antigen,antibody=antibody)
+    datai=data.frame(subjectid=subject[i],trainLabel=trainLabel[i],antigen=antigen,antibody=antibody)
     data=rbind(data,datai)
   }
 
-  data$treatment=factor(c(rep(1,nrow(data)/2),rep(0,nrow(data)/2)))
+  data$treatment=factor(sample(x=c(0,1),replace=T,size = n,prob = c(0.5,0.5)))
   ff=as.formula("~treatment+antigen+antibody+treatment:antigen+
                 treatment:antibody+antigen:antibody+treatment:antigen:antibody")
 n1=Nag

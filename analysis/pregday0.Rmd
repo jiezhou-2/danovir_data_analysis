@@ -181,7 +181,7 @@ contr=lmeControl(maxIter = 100,msMaxIter = 100,niterEM = 100)
 
 
 
-### Mode 1 : third order model + independent/homoscedastic error 
+### Mode 1 : full model + independent and heterscedastic error 
 
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{jkl}+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})$$
@@ -416,7 +416,7 @@ base_data3 |>
 
 
 
-### Model 2: third order model + random intercept + heteroscedastic error
+### Model 2: full model + random intercept + heteroscedastic error
 
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})$$
@@ -609,7 +609,7 @@ base_data3 |>
 
 
 
-### Model 3: third order model + random intercept/antigen/antibody + homoscedastic error
+### Model 3: full model + random intercept/antigen/antibody + homoscedastic error
 
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
