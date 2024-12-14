@@ -9,10 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-[pregnancy day 0](pregday0.html)
+[pregnancy day 0](pregday0_package.html)
 
-[doseage day 0](doseday0.html)
+[doseage day 0](doseday0_package.html)
 
-[pregancy day 28](pregday28.html)
+[pregancy day 28](pregday28_package.html)
 
-[dosage day 28](doseday28.html)
+[dosage day 28](doseday28_package.html)
