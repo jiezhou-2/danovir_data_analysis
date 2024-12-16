@@ -178,6 +178,7 @@ contr=lmeControl(maxIter = 100,msMaxIter = 100,niterEM = 100)
 
 
 
+
 ### Mode 1 : third order model + independent error + feature-specific variance
 
 
@@ -187,7 +188,7 @@ $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+
 
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect2=gls(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15 ,weights = varIdent(form=~1|feature),method = "ML")
+mainEffect2=gls(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15 ,weights = varIdent(form=~1|antigen*detect_reagent),method = "ML")
 aa=summary(mainEffect2)
 ```
 
@@ -227,7 +228,10 @@ for (i in 1:length(antigen)) {
 
 ```{r,echo=FALSE}
 meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
 
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
 
 ggplot(data=meanData,aes(x=meffects,y=deffects))+
     geom_point(aes(shape=antigen,color=antibody),size=4)+
@@ -235,7 +239,7 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
@@ -243,8 +247,6 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
 
 
 ```{r,echo=FALSE}
-varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
-
 
 ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
     geom_point(aes(shape=antigen,color=antibody),size=4)+
@@ -252,14 +254,14 @@ ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseV))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
 ```
 
 
-```{r,eval=FALSE}
+```{r,eval=FALSE,echo=FALSE}
 comparison=merge(meanData,varianceData)
 comparison
 ```
@@ -329,13 +331,13 @@ ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
 
 
 
-### Model 2: third order model + random intercept + feature-specific variance
+### Model 2: full model + random intercept + feature-specific error
 
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~1),weights = varIdent(form = ~1|feature),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~1),weights = varIdent(form = ~1|antigen*detect_reagent),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -356,6 +358,10 @@ print("Effects of maternal immunization on features (antigen+analyte):  ")
 
 ```{r,echo=FALSE}
 meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
+
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
 
 
 ggplot(data=meanData,aes(x=meffects,y=deffects))+
@@ -364,7 +370,7 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
@@ -372,23 +378,20 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
 
 
 ```{r,echo=FALSE}
-varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
-
-
 ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
     geom_point(aes(shape=antigen,color=antibody),size=4)+
      scale_shape_manual(values = shapes)  +
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseV))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
 ```
 
 
-```{r,eval=FALSE}
+```{r,echo=FALSE,eval=FALSE}
 comparison=merge(meanData,varianceData)
 comparison
 ```
@@ -456,6 +459,8 @@ ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
     geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
 ```
+
+
 
 #### forest plot
 
@@ -491,7 +496,7 @@ base_data2$interaction=c("HAFL","HASK",substr(ss2$name[4:17],nchar(ss2$name[4:17
 
 
 
-##### full effects decomposition
+
 
 ```{r,echo=FALSE}
 base_data3=rbind(base_data,base_data2)
@@ -521,13 +526,13 @@ base_data3 |>
 
 
 
-### Model 3: third order model + random intercept/antigen + homoscedastic error
+### Model 3: full model + random intercept+ random antigen+ random antibody+ random antigen:antibody + homoscedastic error
 
 
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen*detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -548,7 +553,10 @@ print("Effects of maternal immunization on features (antigen+analyte):  ")
 
 ```{r,echo=FALSE}
 meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
 
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
 
 ggplot(data=meanData,aes(x=meffects,y=deffects))+
     geom_point(aes(shape=antigen,color=antibody),size=4)+
@@ -556,7 +564,7 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
@@ -564,23 +572,20 @@ ggplot(data=meanData,aes(x=meffects,y=deffects))+
 
 
 ```{r,echo=FALSE}
-varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
-
-
 ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
     geom_point(aes(shape=antigen,color=antibody),size=4)+
      scale_shape_manual(values = shapes)  +
     scale_color_manual(values = colors)+
    geom_abline(intercept = 0,slope = 1)+
   theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title = paste0("MSE=",mseV))+
    theme(legend.position = "right",
           legend.box = "vertical")+
    guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
 ```
 
 
-```{r,eval=FALSE}
+```{r,echo=FALSE,eval=FALSE}
 comparison=merge(meanData,varianceData)
 comparison
 ```
@@ -650,135 +655,6 @@ ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
 ```
 
 
-
-
-### Model 4: third order model + random intercept/antibody + homoscedastic error
-
-
-$$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
-
-```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
-aa=summary(mainEffect3)
-```
-
-
-
-```{r,echo=FALSE,message=FALSE}
-sele=list(antigen=c(2,21,22),detect_reagent=c(2,23:36),three=c(2,65:92))
-names(sele$antigen)=levels(data15$antigen)
-names(sele$detect_reagent)=levels(data15$detect_reagent)
-coeVec=aa$coefficients$fixed
-varMatrix=aa$varFix
-bb=contrast(sele=sele,coeVec = coeVec,varMatrix = varMatrix)
-print("Effects of maternal immunization on features (antigen+analyte):  ")
-```
-
-
-
-
-```{r,echo=FALSE}
-meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
-
-
-ggplot(data=meanData,aes(x=meffects,y=deffects))+
-    geom_point(aes(shape=antigen,color=antibody),size=4)+
-     scale_shape_manual(values = shapes)  +
-    scale_color_manual(values = colors)+
-   geom_abline(intercept = 0,slope = 1)+
-  theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
-   theme(legend.position = "right",
-          legend.box = "vertical")+
-   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
-```
-
-
-```{r,echo=FALSE}
-varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
-
-
-ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
-    geom_point(aes(shape=antigen,color=antibody),size=4)+
-     scale_shape_manual(values = shapes)  +
-    scale_color_manual(values = colors)+
-   geom_abline(intercept = 0,slope = 1)+
-  theme(legend.key=element_blank())+
-  labs(x=bquote("model-based method"), y=bquote("original method"))+
-   theme(legend.position = "right",
-          legend.box = "vertical")+
-   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
-```
-
-
-```{r,eval=FALSE}
-comparison=merge(meanData,varianceData)
-comparison
-```
-
-
-
-
-
-#### model-based volcano
-
-```{r,echo=FALSE}
-volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(bb$effect),pvalue=c(bb$pvalue))
-volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
-volcanoData=volcanoData[order(volcanoData$pvalue),]
-
-
-cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
-index=max(which(volcanoData$fdr<0.2))
-h=-log10(volcanoData$pvalue[index])
-xx=max(abs(volcanoData$effects))
-
-ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
-    geom_point(aes(shape=antigen,color=antibody),size=4)+
-     scale_shape_manual(values = shapes)  +
-    scale_color_manual(values = colors)+
-   theme_classic()+
-  theme(legend.key=element_blank())+
-  geom_hline(yintercept=h,linetype="dashed")+
-  geom_vline(xintercept=0,linetype="dashed")+
-  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
-  #ggtitle( paste0("Day0: NP vs P15(R^2=",round(rsqr,2),")" ) )+
-   theme(legend.position = "right",
-          legend.box = "vertical")+
-   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
-    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
-```
-
-
-#### original volcano
-
-```{r,echo=FALSE}
-volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(basic),pvalue=c(pp))
-volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
-volcanoData=volcanoData[order(volcanoData$pvalue),]
-
-
-cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
-index=max(which(volcanoData$fdr<0.2))
-h=-log10(volcanoData$pvalue[index])
-xx=max(abs(volcanoData$effects))
-
-ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
-    geom_point(aes(shape=antigen,color=antibody),size=4)+
-     scale_shape_manual(values = shapes)  +
-    scale_color_manual(values = colors)+
-   theme_classic()+
-  #xlim(-1,1)+
-  theme(legend.key=element_blank())+
-  geom_hline(yintercept=h,linetype="dashed")+
-  geom_vline(xintercept=0,linetype="dashed")+
-  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
-    #ggtitle( paste0("Day0: P15 vs P30(R^2=",round(rsqr,2),")" ) )+
-   theme(legend.position = "right",
-          legend.box = "vertical")+
-   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
-    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
-```
 
 #### forest plot
 
@@ -814,7 +690,7 @@ base_data2$interaction=c("HAFL","HASK",substr(ss2$name[4:17],nchar(ss2$name[4:17
 
 
 
-##### full effects decomposition
+
 
 ```{r,echo=FALSE}
 base_data3=rbind(base_data,base_data2)
@@ -840,6 +716,570 @@ base_data3 |>
 
 
 
+### Model 4: full model + random intercept+ random antigen+ random antigen:antibody + homoscedastic error
+
+
+$$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
+
+```{r,message=FALSE,echo=FALSE}
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen+antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+aa=summary(mainEffect3)
+```
+
+
+
+```{r,echo=FALSE,message=FALSE}
+sele=list(antigen=c(2,21,22),detect_reagent=c(2,23:36),three=c(2,65:92))
+names(sele$antigen)=levels(data15$antigen)
+names(sele$detect_reagent)=levels(data15$detect_reagent)
+coeVec=aa$coefficients$fixed
+varMatrix=aa$varFix
+bb=contrast(sele=sele,coeVec = coeVec,varMatrix = varMatrix)
+print("Effects of maternal immunization on features (antigen+analyte):  ")
+```
+
+
+
+
+```{r,echo=FALSE}
+meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
+
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
+
+ggplot(data=meanData,aes(x=meffects,y=deffects))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE}
+ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title = paste0("MSE=",mseV))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE,eval=FALSE}
+comparison=merge(meanData,varianceData)
+comparison
+```
+
+
+
+
+
+#### model-based volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(bb$effect),pvalue=c(bb$pvalue))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+  #ggtitle( paste0("Day0: NP vs P15(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+#### original volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(basic),pvalue=c(pp))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  #xlim(-1,1)+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+    #ggtitle( paste0("Day0: P15 vs P30(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+
+#### forest plot
+
+
+```{r,echo=FALSE}
+ss=as.data.frame(aa$tTable[c(sele[[1]],sele[[2]][-1],sele[[3]][-1]),c(1,2)])
+ss$lower=ss[,1]-1.96*ss[,2]
+ss$upper=ss[,1]+1.96*ss[,2]
+ss$name=rownames(ss)
+rownames(ss)=c()
+```
+
+```{r,echo=FALSE}
+base_data=tibble::tibble(mean=ss$Value,lower=ss$lower,upper=ss$upper,interaction=substr(ss$name,14,nchar(ss$name)))
+base_data$interaction=c("ref:na+igg","HAFL","HASK",substr(ss$name[4:17],22,nchar(ss$name[4:17])),paste(substr(ss$name[18:45],15,18),substr(ss$name[18:45],34,50),sep =":"))
+```
+
+
+
+
+```{r,echo=FALSE}
+ss2=as.data.frame(aa$tTable[c(3:18,37:64),c(1,2)])
+ss2$lower=ss2[,1]-1.96*ss2[,2]
+ss2$upper=ss2[,1]+1.96*ss2[,2]
+ss2$name=rownames(ss2)
+rownames(ss2)=c()
+```
+
+```{r,echo=FALSE}
+base_data2=tibble::tibble(mean=ss2$Value,lower=ss2$lower,upper=ss2$upper,interaction=substr(ss2$name,14,nchar(ss2$name)))
+base_data2$interaction=c("HAFL","HASK",substr(ss2$name[4:17],nchar(ss2$name[4:17])-3,nchar(ss2$name[4:17])),paste(substr(ss2$name[18:45],8,11),substr(ss2$name[18:45],27,50),sep =":"))
+```
+
+
+
+
+
+```{r,echo=FALSE}
+base_data3=rbind(base_data,base_data2)
+```
+
+```{r,echo=FALSE}
+base_data3 |>
+  forestplot(labeltext = c(interaction),txt_gp=fpTxtGp(cex=0.5,label = gpar(fontfamily = "HersheySerif")),
+             clip = c(-6, 6)) |>
+  fp_set_style(box = "royalblue",
+               line = "darkblue",
+               summary = "royalblue") |> 
+  fp_add_header(interaction= c("Direct effects")) |>
+  # fp_append_row(mean  = 0.531,
+  #               lower = 0.386,
+  #               upper = 0.731,
+  #               study = "Summary",
+  #               OR = "0.53",
+  #               is.summary = TRUE) |>
+  fp_set_zebra_style("#EFEFEF")
+```
+
+
+
+
+### Model 5: full model + random intercept+ random antibody+ random antigen:antibody + homoscedastic error
+
+
+$$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
+
+```{r,message=FALSE,echo=FALSE}
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~detect_reagent+antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+aa=summary(mainEffect3)
+```
+
+
+
+```{r,echo=FALSE,message=FALSE}
+sele=list(antigen=c(2,21,22),detect_reagent=c(2,23:36),three=c(2,65:92))
+names(sele$antigen)=levels(data15$antigen)
+names(sele$detect_reagent)=levels(data15$detect_reagent)
+coeVec=aa$coefficients$fixed
+varMatrix=aa$varFix
+bb=contrast(sele=sele,coeVec = coeVec,varMatrix = varMatrix)
+print("Effects of maternal immunization on features (antigen+analyte):  ")
+```
+
+
+
+
+```{r,echo=FALSE}
+meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
+
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
+
+ggplot(data=meanData,aes(x=meffects,y=deffects))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE}
+ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title = paste0("MSE=",mseV))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE,eval=FALSE}
+comparison=merge(meanData,varianceData)
+comparison
+```
+
+
+
+
+
+#### model-based volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(bb$effect),pvalue=c(bb$pvalue))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+  #ggtitle( paste0("Day0: NP vs P15(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+#### original volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(basic),pvalue=c(pp))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  #xlim(-1,1)+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+    #ggtitle( paste0("Day0: P15 vs P30(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+
+#### forest plot
+
+
+```{r,echo=FALSE}
+ss=as.data.frame(aa$tTable[c(sele[[1]],sele[[2]][-1],sele[[3]][-1]),c(1,2)])
+ss$lower=ss[,1]-1.96*ss[,2]
+ss$upper=ss[,1]+1.96*ss[,2]
+ss$name=rownames(ss)
+rownames(ss)=c()
+```
+
+```{r,echo=FALSE}
+base_data=tibble::tibble(mean=ss$Value,lower=ss$lower,upper=ss$upper,interaction=substr(ss$name,14,nchar(ss$name)))
+base_data$interaction=c("ref:na+igg","HAFL","HASK",substr(ss$name[4:17],22,nchar(ss$name[4:17])),paste(substr(ss$name[18:45],15,18),substr(ss$name[18:45],34,50),sep =":"))
+```
+
+
+
+
+```{r,echo=FALSE}
+ss2=as.data.frame(aa$tTable[c(3:18,37:64),c(1,2)])
+ss2$lower=ss2[,1]-1.96*ss2[,2]
+ss2$upper=ss2[,1]+1.96*ss2[,2]
+ss2$name=rownames(ss2)
+rownames(ss2)=c()
+```
+
+```{r,echo=FALSE}
+base_data2=tibble::tibble(mean=ss2$Value,lower=ss2$lower,upper=ss2$upper,interaction=substr(ss2$name,14,nchar(ss2$name)))
+base_data2$interaction=c("HAFL","HASK",substr(ss2$name[4:17],nchar(ss2$name[4:17])-3,nchar(ss2$name[4:17])),paste(substr(ss2$name[18:45],8,11),substr(ss2$name[18:45],27,50),sep =":"))
+```
+
+
+
+
+
+```{r,echo=FALSE}
+base_data3=rbind(base_data,base_data2)
+```
+
+```{r,echo=FALSE}
+base_data3 |>
+  forestplot(labeltext = c(interaction),txt_gp=fpTxtGp(cex=0.5,label = gpar(fontfamily = "HersheySerif")),
+             clip = c(-6, 6)) |>
+  fp_set_style(box = "royalblue",
+               line = "darkblue",
+               summary = "royalblue") |> 
+  fp_add_header(interaction= c("Direct effects")) |>
+  # fp_append_row(mean  = 0.531,
+  #               lower = 0.386,
+  #               upper = 0.731,
+  #               study = "Summary",
+  #               OR = "0.53",
+  #               is.summary = TRUE) |>
+  fp_set_zebra_style("#EFEFEF")
+```
+
+
+### Model 6: full model + random intercept+ random antigen:antibody + homoscedastic error
+
+
+$$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
+
+```{r,message=FALSE,echo=FALSE}
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+aa=summary(mainEffect3)
+```
+
+
+
+```{r,echo=FALSE,message=FALSE}
+sele=list(antigen=c(2,21,22),detect_reagent=c(2,23:36),three=c(2,65:92))
+names(sele$antigen)=levels(data15$antigen)
+names(sele$detect_reagent)=levels(data15$detect_reagent)
+coeVec=aa$coefficients$fixed
+varMatrix=aa$varFix
+bb=contrast(sele=sele,coeVec = coeVec,varMatrix = varMatrix)
+print("Effects of maternal immunization on features (antigen+analyte):  ")
+```
+
+
+
+
+```{r,echo=FALSE}
+meanData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,meffects=c(bb$effect),deffects=c(basic))
+varianceData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,mvariances=c(bb$variance),dvariances=c(vv))
+
+mseM=round(mean((meanData$meffects-meanData$deffects)^2),5)
+mseV=round(mean((varianceData$mvariances-varianceData$dvariances)^2),5)
+
+ggplot(data=meanData,aes(x=meffects,y=deffects))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title=paste0("MSE=",mseM))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE}
+ggplot(data=varianceData,aes(x=mvariances,y=dvariances))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   geom_abline(intercept = 0,slope = 1)+
+  theme(legend.key=element_blank())+
+  labs(x=bquote("model-based method"), y=bquote("original method"),title = paste0("MSE=",mseV))+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))
+```
+
+
+```{r,echo=FALSE,eval=FALSE}
+comparison=merge(meanData,varianceData)
+comparison
+```
+
+
+
+
+
+#### model-based volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(bb$effect),pvalue=c(bb$pvalue))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+  #ggtitle( paste0("Day0: NP vs P15(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+#### original volcano
+
+```{r,echo=FALSE}
+volcanoData=data.frame(antigen=rep(rownames(bb$effect),ncol(bb$effect)),antibody=rep(colnames(bb$effect),rep(nrow(bb$effect),ncol(bb$effect))) ,effects=c(basic),pvalue=c(pp))
+volcanoData$fdr=p.adjust(volcanoData$pvalue,method = "BH")
+volcanoData=volcanoData[order(volcanoData$pvalue),]
+
+
+cutoff <- ifelse(volcanoData$fdr<0.2,0.2,volcanoData$fdr)
+index=max(which(volcanoData$fdr<0.2))
+h=-log10(volcanoData$pvalue[index])
+xx=max(abs(volcanoData$effects))
+
+ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
+    geom_point(aes(shape=antigen,color=antibody),size=4)+
+     scale_shape_manual(values = shapes)  +
+    scale_color_manual(values = colors)+
+   theme_classic()+
+  #xlim(-1,1)+
+  theme(legend.key=element_blank())+
+  geom_hline(yintercept=h,linetype="dashed")+
+  geom_vline(xintercept=0,linetype="dashed")+
+  labs(x=bquote("Fold Change"), y=bquote(-Log[10](p-value)))+
+    #ggtitle( paste0("Day0: P15 vs P30(R^2=",round(rsqr,2),")" ) )+
+   theme(legend.position = "right",
+          legend.box = "vertical")+
+   guides(color = guide_legend(nrow = 8,title="Detection Reagent"))+
+    geom_text(aes(xx/2,h,label = paste("FDR=", 0.2, sep=""), vjust = -1),show.legend = FALSE)
+```
+
+
+
+#### forest plot
+
+
+```{r,echo=FALSE}
+ss=as.data.frame(aa$tTable[c(sele[[1]],sele[[2]][-1],sele[[3]][-1]),c(1,2)])
+ss$lower=ss[,1]-1.96*ss[,2]
+ss$upper=ss[,1]+1.96*ss[,2]
+ss$name=rownames(ss)
+rownames(ss)=c()
+```
+
+```{r,echo=FALSE}
+base_data=tibble::tibble(mean=ss$Value,lower=ss$lower,upper=ss$upper,interaction=substr(ss$name,14,nchar(ss$name)))
+base_data$interaction=c("ref:na+igg","HAFL","HASK",substr(ss$name[4:17],22,nchar(ss$name[4:17])),paste(substr(ss$name[18:45],15,18),substr(ss$name[18:45],34,50),sep =":"))
+```
+
+
+
+
+```{r,echo=FALSE}
+ss2=as.data.frame(aa$tTable[c(3:18,37:64),c(1,2)])
+ss2$lower=ss2[,1]-1.96*ss2[,2]
+ss2$upper=ss2[,1]+1.96*ss2[,2]
+ss2$name=rownames(ss2)
+rownames(ss2)=c()
+```
+
+```{r,echo=FALSE}
+base_data2=tibble::tibble(mean=ss2$Value,lower=ss2$lower,upper=ss2$upper,interaction=substr(ss2$name,14,nchar(ss2$name)))
+base_data2$interaction=c("HAFL","HASK",substr(ss2$name[4:17],nchar(ss2$name[4:17])-3,nchar(ss2$name[4:17])),paste(substr(ss2$name[18:45],8,11),substr(ss2$name[18:45],27,50),sep =":"))
+```
+
+
+
+
+
+```{r,echo=FALSE}
+base_data3=rbind(base_data,base_data2)
+```
+
+```{r,echo=FALSE}
+base_data3 |>
+  forestplot(labeltext = c(interaction),txt_gp=fpTxtGp(cex=0.5,label = gpar(fontfamily = "HersheySerif")),
+             clip = c(-6, 6)) |>
+  fp_set_style(box = "royalblue",
+               line = "darkblue",
+               summary = "royalblue") |> 
+  fp_add_header(interaction= c("Direct effects")) |>
+  # fp_append_row(mean  = 0.531,
+  #               lower = 0.386,
+  #               upper = 0.731,
+  #               study = "Summary",
+  #               OR = "0.53",
+  #               is.summary = TRUE) |>
+  fp_set_zebra_style("#EFEFEF")
+```
 
 
 

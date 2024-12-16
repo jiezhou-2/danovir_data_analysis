@@ -11,8 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 [pregnancy day 0](pregday0_package.html)
 
-[doseage day 0](doseday0_package.html)
-
 [pregancy day 28](pregday28_package.html)
 
-[dosage day 28](doseday28_package.html)
+[doseage day 0 (1)](doseday0_package.html)
+
+[doseage day 0 (2)](doseday0.html)
+
+
+[dosage day 28 (1)](doseday28_package.html)
+
+[doseage day 28 (2)](doseday28.html)

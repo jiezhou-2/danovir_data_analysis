@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jie Zhou" />
 
-<meta name="date" content="2024-12-13" />
+<meta name="date" content="2024-12-15" />
 
 <title>Replicate the Original Results using Linear Regression and Mixed-effects Model</title>
 
@@ -354,7 +354,7 @@ div.tocify {
 <h1 class="title toc-ignore">Replicate the Original Results using Linear
 Regression and Mixed-effects Model</h1>
 <h4 class="author">Jie Zhou</h4>
-<h4 class="date">2024-12-13</h4>
+<h4 class="date">2024-12-15</h4>
 
 </div>
 
@@ -383,7 +383,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2024-12-13
+<strong>Last updated:</strong> 2024-12-15
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -517,15 +517,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjiezhou2danovirdataanalysistree94de4f382fdc700446d84d5590374fde6c432733targetblank94de4f3a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjiezhou2danovirdataanalysistree3908b5bbe332e64119b18be7b4d34508d5c23f72targetblank3908b5ba">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/jiezhou-2/danovir_data_analysis/tree/94de4f382fdc700446d84d5590374fde6c432733" target="_blank">94de4f3</a>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/tree/3908b5bbe332e64119b18be7b4d34508d5c23f72" target="_blank">3908b5b</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomjiezhou2danovirdataanalysistree94de4f382fdc700446d84d5590374fde6c432733targetblank94de4f3a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomjiezhou2danovirdataanalysistree3908b5bbe332e64119b18be7b4d34508d5c23f72targetblank3908b5ba"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -535,7 +535,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/jiezhou-2/danovir_data_analysis/tree/94de4f382fdc700446d84d5590374fde6c432733" target="_blank">94de4f3</a>.
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/tree/3908b5bbe332e64119b18be7b4d34508d5c23f72" target="_blank">3908b5b</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -554,9 +554,12 @@ Ignored files:
     Ignored:    .Rproj.user/
     Ignored:    analysis/figure/
 
+Untracked files:
+    Untracked:  analysis/feature_wise.Rmd
+
 Unstaged changes:
     Modified:   analysis/doseday0.Rmd
-    Modified:   analysis/pregday0.Rmd
+    Modified:   analysis/doseday28.Rmd
 
 </code></pre>
 <p>
@@ -601,6 +604,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/analysis/doseday0.Rmd" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+<td>
+new simulation
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jiezhou-2/danovir_data_analysis/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/doseday0.html" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+<td>
+new simulation
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -765,8 +802,6 @@ Jie Zhou-2
 </table>
 </div>
 </div>
-<pre class="r"><code>comparison=merge(meanData,varianceData)
-comparison</code></pre>
 <div id="model-based-volcano" class="section level4">
 <h4>model-based volcano</h4>
 <pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
@@ -868,11 +903,9 @@ Jie Zhou-2
 </div>
 </div>
 </div>
-<div
-id="model-2-third-order-model-random-intercept-feature-specific-variance"
+<div id="model-2-full-model-random-intercept-feature-specific-error"
 class="section level3">
-<h3>Model 2: third order model + random intercept + feature-specific
-variance</h3>
+<h3>Model 2: full model + random intercept + feature-specific error</h3>
 <p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
 + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
 e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})\]</span></p>
@@ -953,8 +986,6 @@ Jie Zhou-2
 </table>
 </div>
 </div>
-<pre class="r"><code>comparison=merge(meanData,varianceData)
-comparison</code></pre>
 <div id="model-based-volcano-1" class="section level4">
 <h4>model-based volcano</h4>
 <pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
@@ -1057,8 +1088,6 @@ Jie Zhou-2
 </div>
 <div id="forest-plot" class="section level4">
 <h4>forest plot</h4>
-<div id="full-effects-decomposition" class="section level5">
-<h5>full effects decomposition</h5>
 <p><img src="figure/doseday0.Rmd/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-25-1">
@@ -1099,12 +1128,11 @@ Jie Zhou-2
 </div>
 </div>
 </div>
-</div>
 <div
-id="model-3-third-order-model-random-interceptantigen-homoscedastic-error"
+id="model-3-full-model-random-intercept-random-antigen-random-antibody-random-antigenantibody-homoscedastic-error"
 class="section level3">
-<h3>Model 3: third order model + random intercept/antigen +
-homoscedastic error</h3>
+<h3>Model 3: full model + random intercept+ random antigen+ random
+antibody+ random antigen:antibody + homoscedastic error</h3>
 <p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
 + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
 u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)\]</span></p>
@@ -1132,6 +1160,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/figure/doseday0.Rmd/unnamed-chunk-28-1.png" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/061ca84665e28a2a3f487c27e5add3ae736170e9/docs/figure/doseday0.Rmd/unnamed-chunk-28-1.png" target="_blank">061ca84</a>
@@ -1172,6 +1211,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/figure/doseday0.Rmd/unnamed-chunk-29-1.png" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/061ca84665e28a2a3f487c27e5add3ae736170e9/docs/figure/doseday0.Rmd/unnamed-chunk-29-1.png" target="_blank">061ca84</a>
 </td>
 <td>
@@ -1185,8 +1235,6 @@ Jie Zhou-2
 </table>
 </div>
 </div>
-<pre class="r"><code>comparison=merge(meanData,varianceData)
-comparison</code></pre>
 <div id="model-based-volcano-2" class="section level4">
 <h4>model-based volcano</h4>
 <pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
@@ -1221,6 +1269,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/figure/doseday0.Rmd/unnamed-chunk-31-1.png" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/061ca84665e28a2a3f487c27e5add3ae736170e9/docs/figure/doseday0.Rmd/unnamed-chunk-31-1.png" target="_blank">061ca84</a>
@@ -1287,31 +1346,8 @@ Jie Zhou-2
 </div>
 </div>
 </div>
-</div>
-<div
-id="model-4-third-order-model-random-interceptantibody-homoscedastic-error"
-class="section level3">
-<h3>Model 4: third order model + random intercept/antibody +
-homoscedastic error</h3>
-<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
-+ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
-u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)\]</span></p>
-<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
-<p><img src="figure/doseday0.Rmd/unnamed-chunk-35-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p><img src="figure/doseday0.Rmd/unnamed-chunk-36-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>comparison=merge(meanData,varianceData)
-comparison</code></pre>
-<div id="model-based-volcano-3" class="section level4">
-<h4>model-based volcano</h4>
-<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
-returning -Inf</code></pre>
-<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
-ℹ Please consider using `annotate()` or provide this layer with data containing
-  a single row.</code></pre>
-<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
-(`geom_hline()`).</code></pre>
-<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
-(`geom_text()`).</code></pre>
+<div id="forest-plot-1" class="section level4">
+<h4>forest plot</h4>
 <p><img src="figure/doseday0.Rmd/unnamed-chunk-38-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-38-1">
@@ -1337,6 +1373,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/figure/doseday0.Rmd/unnamed-chunk-38-1.png" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/061ca84665e28a2a3f487c27e5add3ae736170e9/docs/figure/doseday0.Rmd/unnamed-chunk-38-1.png" target="_blank">061ca84</a>
 </td>
 <td>
@@ -1351,6 +1398,31 @@ Jie Zhou-2
 </div>
 </div>
 </div>
+</div>
+<div
+id="model-4-full-model-random-intercept-random-antigen-random-antigenantibody-homoscedastic-error"
+class="section level3">
+<h3>Model 4: full model + random intercept+ random antigen+ random
+antigen:antibody + homoscedastic error</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
+u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)\]</span></p>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-41-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-42-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="model-based-volcano-3" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_hline()`).</code></pre>
+<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-44-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
 <div id="original-volcano-3" class="section level4">
 <h4>original volcano</h4>
 <pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
@@ -1362,13 +1434,132 @@ returning -Inf</code></pre>
 (`geom_hline()`).</code></pre>
 <pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
 (`geom_text()`).</code></pre>
-<p><img src="figure/doseday0.Rmd/unnamed-chunk-39-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="forest-plot-1" class="section level4">
-<h4>forest plot</h4>
-<div id="full-effects-decomposition-1" class="section level5">
-<h5>full effects decomposition</h5>
 <p><img src="figure/doseday0.Rmd/unnamed-chunk-45-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-45-1">
+Past versions of unnamed-chunk-45-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-45-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jiezhou-2/danovir_data_analysis/blob/3908b5bbe332e64119b18be7b4d34508d5c23f72/docs/figure/doseday0.Rmd/unnamed-chunk-45-1.png" target="_blank">3908b5b</a>
+</td>
+<td>
+Jie Zhou-2
+</td>
+<td>
+2024-12-14
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="forest-plot-2" class="section level4">
+<h4>forest plot</h4>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-51-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div
+id="model-5-full-model-random-intercept-random-antibody-random-antigenantibody-homoscedastic-error"
+class="section level3">
+<h3>Model 5: full model + random intercept+ random antibody+ random
+antigen:antibody + homoscedastic error</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
+u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)\]</span></p>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-54-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-55-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="model-based-volcano-4" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_hline()`).</code></pre>
+<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-57-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="original-volcano-4" class="section level4">
+<h4>original volcano</h4>
+<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_hline()`).</code></pre>
+<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-58-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="forest-plot-3" class="section level4">
+<h4>forest plot</h4>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-64-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div
+id="model-6-full-model-random-intercept-random-antigenantibody-homoscedastic-error"
+class="section level3">
+<h3>Model 6: full model + random intercept+ random antigen:antibody +
+homoscedastic error</h3>
+<p><span class="math display">\[infant_{ijkl}=\mu +  \alpha_j + \beta_k
++ \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+
+u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)\]</span></p>
+<pre><code>[1] &quot;Effects of maternal immunization on features (antigen+analyte):  &quot;</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-67-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-68-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="model-based-volcano-5" class="section level4">
+<h4>model-based volcano</h4>
+<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_hline()`).</code></pre>
+<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-70-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="original-volcano-5" class="section level4">
+<h4>original volcano</h4>
+<pre><code>Warning in max(which(volcanoData$fdr &lt; 0.2)): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>Warning in geom_text(aes(xx/2, h, label = paste(&quot;FDR=&quot;, 0.2, sep = &quot;&quot;), : All aesthetics have length 1, but the data has 45 rows.
+ℹ Please consider using `annotate()` or provide this layer with data containing
+  a single row.</code></pre>
+<pre><code>Warning: Removed 1 row containing missing values or values outside the scale range
+(`geom_hline()`).</code></pre>
+<pre><code>Warning: Removed 45 rows containing missing values or values outside the scale range
+(`geom_text()`).</code></pre>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-71-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="forest-plot-4" class="section level4">
+<h4>forest plot</h4>
+<p><img src="figure/doseday0.Rmd/unnamed-chunk-77-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1434,7 +1625,6 @@ loaded via a namespace (and not attached):
 [73] httpuv_1.6.15       bslib_0.7.0         Rcpp_1.0.12        
 [76] gridExtra_2.3       whisker_0.4.1       xfun_0.43          
 [79] fs_1.6.4            pkgconfig_2.0.3    </code></pre>
-</div>
 </div>
 </div>
 </div>
