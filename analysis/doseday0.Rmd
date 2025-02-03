@@ -173,6 +173,12 @@ varPlot(form = value_reported~ arm+antigen+detect_reagent+assay, Data=data15,Mea
 data15=groupedData(value_reported~arm|subject_accession,data=data15)
 data15$feature=paste0(data15$antigen,data15$detect_reagent,sep="")
 contr=lmeControl(maxIter = 100,msMaxIter = 100,niterEM = 100)
+data15$antibody=ifelse(data15$detect_reagent=="IgG1" | data15$detect_reagent=="IgG2" |
+                         data15$detect_reagent=="IgG3" | data15$detect_reagent=="IgG4" | 
+                         data15$detect_reagent=="IgG", "IgG", 
+                       ifelse(data15$detect_reagent=="IgA1" | data15$detect_reagent=="IgA2" | data15$detect_reagent=="IgA", "IgA", 
+                              ifelse(data15$detect_reagent=="IgM", "IgM", 
+                                     "FcgR")))
 ```
 
 
@@ -188,7 +194,7 @@ $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+
 
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect2=gls(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15 ,weights = varIdent(form=~1|antigen*detect_reagent),method = "ML")
+mainEffect2=gls(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15 ,correlation = corCompSymm(form=~antigen|subject_accession),weights = varIdent(form=~1|feature),method = "ML")
 aa=summary(mainEffect2)
 ```
 
@@ -337,7 +343,13 @@ ggplot(data=volcanoData,aes(x=effects,y=-log10(pvalue)))+
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ e_{ijk}, e_{ijk}\sim N(0,\sigma_{jk})$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~1),weights = varIdent(form = ~1|antigen*detect_reagent),data = data15,method = "ML",control = contr)
+# mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~1|antigen/detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+
+mainEffect3=lme(
+value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,
+correlation = corCompSymm(form=~1|subject_accession),
+weights = varIdent(form=~1|detect_reagent),
+random=pdDiag(form = ~antigen), data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -532,7 +544,7 @@ base_data3 |>
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen*detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~1|antigen*antibody),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -722,7 +734,7 @@ base_data3 |>
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen+antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen+antigen:antibody),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -912,7 +924,7 @@ base_data3 |>
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~detect_reagent+antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antibody+antigen:antibody),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
@@ -1100,7 +1112,7 @@ base_data3 |>
 $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+ \gamma_{3jk}+\gamma_{4jkl}+u_i+ u_{ij}+u_{ik}+ e_{ijk}, e_{ijk}\sim N(0,\sigma^2)$$
 
 ```{r,message=FALSE,echo=FALSE}
-mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen:detect_reagent),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
+mainEffect3=lme(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,random=pdDiag(~antigen:antibody),weights = varIdent(form = ~1),data = data15,method = "ML",control = contr)
 aa=summary(mainEffect3)
 ```
 
