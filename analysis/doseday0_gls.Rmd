@@ -19,6 +19,7 @@ library(DT)
 library(ggplot2)
 library(ggrepel)
 library(mixOmics)
+library(expm)
 library(stringr)
 library(VCA)
 library(nlme)
@@ -198,30 +199,69 @@ $$infant_{ijkl}=\mu +  \alpha_j + \beta_k + \lambda_l+\gamma_{1lj}+\gamma_{2lk}+
 
 ```{r echo=FALSE, message=FALSE}
 # mainEffect2=gls(value_reported~arm+ antigen+detect_reagent+assay+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15 ,correlation = corCompSymm(form=~antigen|subject_accession),weights = varIdent(form=~1|feature),method = "ML")
-dd=10
+
 data15$y=data15$value_reported
-ff=data15$feature[1:45]
-cc=matrix(nrow=length(ff),ncol = length(ff))
+# f=list(a1=data15$feature[1:11],a2=data15$feature[12:22],a3=data15$feature[23:33],a4=data15$feature[34:44])
+# ff=f[[4]]
+  pers=dataa$subject_accession[1]
+deagents=unique(data15$detect_reagent)
+ nn=length(unique(dataa$subject_accession))
+ results=vector("list",length(deagents))
+ names(results)=deagents
+for (detect_reagent in deagents) {
+  print(detect_reagent)
+    index=which(data15$detect_reagent %in% detect_reagent)
+  dataa=data15[index,]
+  ff=dataa$feature[which(dataa$subject_accession==pers)]
+   cc=matrix(0,nrow=length(ff),ncol = length(ff))
 rownames(cc)=ff
 colnames(cc)=ff
-nn=length(unique(data15$subject_accession))
-while(dd<10^(-4)){
-mainEffect2=gls(y~arm+ antigen+detect_reagent+ arm:antigen+arm:detect_reagent+antigen:detect_reagent+arm:antigen:detect_reagent,data = data15,method = "ML")
-data15$resi=data15$value_reported-mainEffect2$fitted
-for (i in ff) {
+disc=1
+m=0
+coef1=rnorm(6)
+varb1=diag(6)
+    while (disc>10^(-1)) {
+      m=m+1
+      # print(paste0("coefficient of ", m, "th iteration:"))
+      # print(coef1)
+      # print("Correlation matrix of residuals:")
+      # print(cc)
+  mainEffect2=lm(y~arm + antigen +arm:antigen, data = dataa)
+  dataa$resi=dataa$y-mainEffect2$fitted
+    for (i in ff) {
   for (j in ff) {
-    index1=which(data15$feature==i)
-    index2=which(data15$feature==j)
-    aa1=data15$resi[index1]
-    aa2=data15$resi[index2]
-    cc[i,j]=cor(aa1,aa2)
+    index1=which(dataa$feature==i)
+    index2=which(dataa$feature==j)
+    aa1=dataa$resi[index1]
+    aa2=dataa$resi[index2]
+    cc[i,j]=cov(aa1,aa2)
   }
-}
-data15$y=solve(kronecker(diag(nn),cc)) %*% data15$value_reported
+    }
+  ww=kronecker(diag(nn),solve(sqrtm(cc)))
+aa= ww%*% dataa$value_reporte
+coef2=mainEffect2$coefficients
+varb2=vcov(mainEffect2)
+disc1=sum((coef1-coef2)^2)/sum(coef2^2)
+disc2=sum((varb1-varb2)^2)/sum(varb2^2)
+disc=disc1+disc2
+print(disc)
+coef1=coef2
+varb1=varb2
+dataa$y=aa
+    }
+rr1=c(coef2[2],coef2[2]+coef2[5],coef2[2]+coef2[6])
+rr2=c(varb2[2,2],c(1,1)%*%varb2[c(2,5),c(2,5)]%*% c(1,1),
+      c(1,1)%*%varb2[c(2,6),c(2,6)]%*% c(1,1))
+results[[detect_reagent]]=cbind(ave=rr1,vv=rr2)
 
-dd=mean(resi^2)
+rownames(results[[detect_reagent]])=c("NA","HAFL","HASK")
 }
-aa=summary(mainEffect2)
+# index1=which(data15$feature=="HAFLFcaR")
+# index2=which(data15$feature=="HASKFcaR")
+# index3=which(data15$feature=="NAFcaR")
+# x1=data15$value_reported[index1]
+# x2=data15$value_reported[index2]
+# x3=data15$value_reported[index3]
 ```
 
 ```{r,echo=FALSE,message=FALSE}
